@@ -58,20 +58,22 @@ export default async function LandingPage() {
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {[
-              { icon: Layout, label: "Texto" },
-              { icon: ImageIcon, label: "Imagem" },
-              { icon: Video, label: "Vídeo" },
-              { icon: Megaphone, label: "Marketing" },
-              { icon: Code, label: "Código" },
-              { icon: Briefcase, label: "Negócios" },
-              { icon: GraduationCap, label: "Estudos" },
+              { icon: Layout, label: "Escrita", slug: "escrita" },
+              { icon: ImageIcon, label: "Design", slug: "design" },
+              { icon: Video, label: "Vídeo", slug: "video" },
+              { icon: Megaphone, label: "Marketing", slug: "marketing" },
+              { icon: Code, label: "Programação", slug: "programacao" },
+              { icon: Briefcase, label: "Negócios", slug: "negocios" },
+              { icon: GraduationCap, label: "Educação", slug: "educacao" },
             ].map((item, i) => (
-              <Card key={i} className="bg-white/5 border-white/10 hover:border-primary/50 hover:bg-white/10 transition-all cursor-pointer group">
-                <CardContent className="p-6 flex flex-col items-center justify-center gap-4">
-                  <item.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
-                  <span className="text-sm font-medium">{item.label}</span>
-                </CardContent>
-              </Card>
+              <Link key={i} href={`/categoria/${item.slug}`}>
+                <Card className="bg-white/5 border-white/10 hover:border-primary/50 hover:bg-white/10 transition-all cursor-pointer group h-full">
+                  <CardContent className="p-6 flex flex-col items-center justify-center gap-4">
+                    <item.icon className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <span className="text-sm font-medium">{item.label}</span>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>

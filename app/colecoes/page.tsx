@@ -62,8 +62,9 @@ export default async function CollectionsPage() {
         {/* Collections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {collections.map((collection, index) => (
-            <Card key={collection.id} className="bg-white/5 border-white/10 hover:border-primary/40 transition-all group cursor-pointer flex flex-col">
-              <CardHeader className="p-6">
+            <Link key={collection.id} href={`/colecoes/${collection.id}`}>
+              <Card className="bg-white/5 border-white/10 hover:border-primary/40 transition-all group cursor-pointer h-full flex flex-col">
+                <CardHeader className="p-6">
                  <div className="flex justify-between items-start mb-6">
                     <div className={`w-12 h-12 rounded-xl ${COLORS[index % COLORS.length]} border flex items-center justify-center`}>
                        <Folder className="w-6 h-6 text-foreground" />
@@ -91,11 +92,12 @@ export default async function CollectionsPage() {
                     <span>{collection.updatedAt.toLocaleDateString('pt-BR')}</span>
                  </div>
               </CardContent>
-              <CardFooter className="px-6 py-3 bg-white/5 border-t border-white/5 flex items-center justify-between group-hover:bg-primary/5 transition-colors">
-                 <span className="text-xs font-bold uppercase tracking-widest text-primary/80 group-hover:text-primary">Abrir Coleção</span>
-                 <ChevronRight className="w-4 h-4 text-primary/80 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-              </CardFooter>
-            </Card>
+                <CardFooter className="px-6 py-3 bg-white/5 border-t border-white/5 flex items-center justify-between group-hover:bg-primary/5 transition-colors mt-auto">
+                   <span className="text-xs font-bold uppercase tracking-widest text-primary/80 group-hover:text-primary">Abrir Coleção</span>
+                   <ChevronRight className="w-4 h-4 text-primary/80 group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                </CardFooter>
+              </Card>
+            </Link>
           ))}
 
           {/* Create New Card */}

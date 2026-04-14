@@ -1,4 +1,4 @@
-import { Search, Filter, SlidersHorizontal, Grid2X2, List, Copy, Star, ChevronDown, Check, Code } from "lucide-react";
+import { Search, Filter, SlidersHorizontal, Grid2X2, List, Copy, Star, ChevronDown, Check, Code, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getPrompts, getCategories, getAITools, getUserCollections } from "@/lib/prompts";
+import { getPrompts, getCategories, getAITools, getUserCollections, getTrendingPrompts } from "@/lib/prompts";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
@@ -28,11 +28,12 @@ export default async function ExplorePage({
 }) {
   const { q, cat, tool, diff } = await searchParams;
 
-  const [prompts, allCategories, allTools, collections] = await Promise.all([
+  const [prompts, allCategories, allTools, collections, trending] = await Promise.all([
     getPrompts({ search: q, category: cat, tool: tool, difficulty: diff }),
     getCategories(),
     getAITools(),
     getUserCollections(TEST_USER_ID),
+    getTrendingPrompts(),
   ]);
 
   return (
@@ -160,6 +161,36 @@ export default async function ExplorePage({
                 </div>
               </div>
             </div>
+
+            {/* Trending Section */}
+            {!q && !cat && !tool && !diff && (
+               <div className="mb-12">
+                  <div className="flex items-center gap-2 mb-6">
+                     <TrendingUp className="w-5 h-5 text-primary" />
+                     <h2 className="text-xl font-bold uppercase tracking-widest text-muted-foreground">Em Alta</h2>
+                  </div>
+                  <ScrollArea className="w-full whitespace-nowrap pb-4">
+                     <div className="flex gap-4">
+                        {trending.map((tp) => (
+                           <Link key={tp.id} href={`/prompt/${tp.slug}`}>
+                              <Card className="inline-flex flex-col w-[280px] bg-white/5 border-white/10 hover:border-primary/50 transition-all group p-4 shrink-0">
+                                 <Badge variant="secondary" className="w-fit mb-3 bg-primary/10 text-primary border-none text-[8px] uppercase">{tp.category}</Badge>
+                                 <h4 className="text-sm font-bold truncate group-hover:text-primary transition-colors">{tp.title}</h4>
+                                 <p className="text-[10px] text-muted-foreground mt-1 line-clamp-1">{tp.shortDescription}</p>
+                                 <div className="flex items-center justify-between mt-4">
+                                    <span className="text-[8px] font-black text-muted-foreground uppercase">{tp.aiTools[0]}</span>
+                                    <div className="flex items-center gap-1 text-amber-400">
+                                       <Star className="w-2.5 h-2.5 fill-current" />
+                                       <span className="text-[10px] font-bold">{tp.ratingAvg.toFixed(1)}</span>
+                                    </div>
+                                 </div>
+                              </Card>
+                           </Link>
+                        ))}
+                     </div>
+                  </ScrollArea>
+               </div>
+            )}
 
             {/* Tags Ribbon */}
             <ScrollArea className="w-full whitespace-nowrap mb-8 pb-3">

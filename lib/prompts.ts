@@ -61,6 +61,79 @@ export async function getPrompts(filters?: {
   }
 }
 
+export async function getTrendingPrompts() {
+  try {
+    const prompts = await prisma.prompt.findMany({
+      where: { status: 'published' },
+      include: {
+        category: true,
+        aiTools: {
+          include: {
+            tool: true
+          }
+        },
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        author: true,
+      },
+      orderBy: [
+        { copyCount: 'desc' },
+        { viewCount: 'desc' }
+      ],
+      take: 6
+    });
+
+    return prompts.map(mapPrompt);
+  } catch (error) {
+    console.error("Error fetching trending prompts", error);
+    return [];
+  }
+}
+
+export async function getCollectionDetail(collectionId: string) {
+  try {
+    const collection = await prisma.collection.findUnique({
+      where: { id: collectionId },
+      include: {
+        items: {
+          include: {
+            prompt: {
+              include: {
+                category: true,
+                aiTools: {
+                  include: {
+                    tool: true
+                  }
+                },
+                tags: {
+                  include: {
+                    tag: true
+                  }
+                },
+                author: true,
+              }
+            }
+          },
+          orderBy: { createdAt: 'desc' }
+        }
+      }
+    });
+
+    if (!collection) return null;
+
+    return {
+      ...collection,
+      prompts: collection.items.map(item => mapPrompt(item.prompt))
+    };
+  } catch (error) {
+    console.error("Error fetching collection detail", error);
+    return null;
+  }
+}
+
 export async function getPromptBySlug(slug: string) {
   try {
     const prompt = await prisma.prompt.findUnique({

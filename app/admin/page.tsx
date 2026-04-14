@@ -34,14 +34,28 @@ export default async function AdminDashboardPage() {
   let promptCount = 0;
   let userCount = 0;
   let favoritesCount = 0;
+  let recentActivity: any[] = [];
 
   try {
-    [prompts, promptCount, userCount, favoritesCount] = await Promise.all([
+    const [p, pc, uc, fc, ra] = await Promise.all([
       getPrompts(),
       prisma.prompt.count(),
       prisma.user.count(),
       prisma.favorite.count(),
+      prisma.copyHistory.findMany({
+         include: {
+            user: true,
+            prompt: true
+         },
+         orderBy: { createdAt: 'desc' },
+         take: 10
+      })
     ]);
+    prompts = p;
+    promptCount = pc;
+    userCount = uc;
+    favoritesCount = fc;
+    recentActivity = ra;
   } catch (error) {
     console.error("Failed to fetch admin stats", error);
     // Fallback or empty state
@@ -216,6 +230,36 @@ export default async function AdminDashboardPage() {
               </div>
            </div>
         </Card>
+
+        {/* Recent Activity Feed */}
+        <div className="mt-12">
+           <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-primary" /> Atividade Recente
+           </h2>
+           <div className="space-y-3">
+              {recentActivity.map((activity) => (
+                 <div key={activity.id} className="bg-white/5 border border-white/5 p-4 rounded-xl flex items-center justify-between group hover:bg-white/[0.08] transition-colors">
+                    <div className="flex items-center gap-4">
+                       <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
+                          {activity.user?.name?.[0] || 'U'}
+                       </div>
+                       <div>
+                          <p className="text-sm font-medium">
+                             <span className="font-bold text-white">{activity.user?.name || 'Usuário'}</span> copiou <span className="font-bold text-primary">{activity.prompt?.title}</span>
+                          </p>
+                          <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest mt-0.5">
+                             {new Date(activity.createdAt).toLocaleString('pt-BR')}
+                          </p>
+                       </div>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all" />
+                 </div>
+              ))}
+              {recentActivity.length === 0 && (
+                 <p className="text-muted-foreground text-sm italic">Nenhuma atividade registrada ainda.</p>
+              )}
+           </div>
+        </div>
       </main>
     </div>
   );
