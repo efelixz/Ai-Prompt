@@ -6,7 +6,39 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getPrompts, getPromptBySlug as fetchPromptBySlug } from "@/lib/prompts";
+import { getPrompts, getPromptBySlug as fetchPromptBySlug, getUserCollections } from "@/lib/prompts";
+import { FavoriteButton } from "@/components/favorite-button";
+import { CollectionSelect } from "@/components/collection-select";
+import { CopyButton } from "@/components/copy-button";
+import { Rating } from "@/components/rating";
+import { Metadata } from 'next';
+import { Lock, Crown } from "lucide-react";
+
+const TEST_USER_ID = 'user_test_123';
+const IS_PRO_USER = false; // Simulação de status do usuário
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const prompt = await fetchPromptBySlug(slug);
+
+  if (!prompt) {
+    return {
+      title: 'Prompt não encontrado | Obsidian',
+    };
+  }
+
+  return {
+    title: `${prompt.title} | Melhores Prompts ${prompt.aiTools.join(', ')} | Obsidian`,
+    description: prompt.shortDescription,
+    keywords: [...prompt.tags, ...prompt.aiTools, prompt.category, 'prompts', 'inteligência artificial'].join(', '),
+    openGraph: {
+      title: prompt.title,
+      description: prompt.shortDescription,
+      type: 'article',
+      locale: 'pt_BR',
+    },
+  };
+}
 
 async function getRelatedPrompts(category: string, currentId: string) {
     const prompts = await getPrompts();
@@ -17,7 +49,11 @@ async function getRelatedPrompts(category: string, currentId: string) {
 
 export default async function PromptDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const prompt = await fetchPromptBySlug(slug);
+
+  const [prompt, collections] = await Promise.all([
+     fetchPromptBySlug(slug),
+     getUserCollections(TEST_USER_ID)
+  ]);
 
   if (!prompt) {
     notFound();
@@ -99,11 +135,20 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                       </div>
                    </div>
                    <Separator orientation="vertical" className="h-8 bg-white/10" />
+                   <div className="flex items-center gap-6">
+                      <Rating promptId={prompt.id} initialValue={Number((prompt as any).ratingAvg || 0)} />
+                   </div>
+                   <Separator orientation="vertical" className="h-8 bg-white/10" />
                    <div className="flex items-center gap-4">
-                      <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
-                        <Star className="w-4 h-4" /> Favoritar
-                      </Button>
-                      <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary">
+                      <div className="flex items-center gap-1">
+                         <FavoriteButton promptId={prompt.id} />
+                         <span className="text-sm text-muted-foreground">Favoritar</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                         <CollectionSelect promptId={prompt.id} collections={collections} />
+                         <span className="text-sm text-muted-foreground">Colecionar</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary ml-2">
                         <Share2 className="w-4 h-4" /> Compartilhar
                       </Button>
                    </div>
@@ -115,57 +160,80 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                 <div className="flex items-center gap-2 mb-2">
                   <Terminal className="w-5 h-5 text-primary" />
                   <h2 className="text-2xl font-bold">O Prompt</h2>
+                  {prompt.isPremium && (
+                    <Badge className="bg-amber-500 text-black border-none gap-1 ml-2">
+                       <Crown className="w-3 h-3" /> PREMIUM
+                    </Badge>
+                  )}
                 </div>
 
-                <Tabs defaultValue="main" className="w-full">
-                  <TabsList className="bg-white/5 border border-white/10 p-1 mb-6">
-                    <TabsTrigger value="main" className="data-[state=active]:bg-primary data-[state=active]:text-white">Principal</TabsTrigger>
-                    <TabsTrigger value="short" className="data-[state=active]:bg-primary data-[state=active]:text-white">Curto</TabsTrigger>
-                    <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-white">Avançado</TabsTrigger>
-                  </TabsList>
+                <div className="relative">
+                  <Tabs defaultValue="main" className={`w-full ${prompt.isPremium && !IS_PRO_USER ? 'blur-md pointer-events-none select-none' : ''}`}>
+                    <TabsList className="bg-white/5 border border-white/10 p-1 mb-6">
+                      <TabsTrigger value="main" className="data-[state=active]:bg-primary data-[state=active]:text-white">Principal</TabsTrigger>
+                      <TabsTrigger value="short" className="data-[state=active]:bg-primary data-[state=active]:text-white">Curto</TabsTrigger>
+                      <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-white">Avançado</TabsTrigger>
+                    </TabsList>
 
-                  <TabsContent value="main" className="relative group">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
-                      <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Base Prompt</div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90 gap-2 font-bold"
-                      >
-                        <Copy className="w-4 h-4" /> Copiar
-                      </Button>
-                      {prompt.promptText}
-                    </div>
-                  </TabsContent>
+                    <TabsContent value="main" className="relative group">
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
+                        <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Base Prompt</div>
+                        <CopyButton
+                          promptId={prompt.id}
+                          textToCopy={prompt.promptText}
+                          variant="default"
+                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                        />
+                        {prompt.promptText}
+                      </div>
+                    </TabsContent>
 
-                  <TabsContent value="short" className="relative group">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
-                      <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Condensed Version</div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90 gap-2 font-bold"
-                      >
-                        <Copy className="w-4 h-4" /> Copiar
-                      </Button>
-                      {prompt.promptTextShort || prompt.promptText}
-                    </div>
-                  </TabsContent>
+                    <TabsContent value="short" className="relative group">
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
+                        <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Condensed Version</div>
+                        <CopyButton
+                          promptId={prompt.id}
+                          textToCopy={prompt.promptTextShort || prompt.promptText}
+                          variant="default"
+                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                        />
+                        {prompt.promptTextShort || prompt.promptText}
+                      </div>
+                    </TabsContent>
 
-                  <TabsContent value="advanced" className="relative group">
-                    <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
-                      <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Power User Mode</div>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90 gap-2 font-bold"
-                      >
-                        <Copy className="w-4 h-4" /> Copiar
-                      </Button>
-                      {prompt.promptTextAdvanced || prompt.promptText}
+                    <TabsContent value="advanced" className="relative group">
+                      <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
+                        <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Power User Mode</div>
+                        <CopyButton
+                          promptId={prompt.id}
+                          textToCopy={prompt.promptTextAdvanced || prompt.promptText}
+                          variant="default"
+                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                        />
+                        {prompt.promptTextAdvanced || prompt.promptText}
+                      </div>
+                    </TabsContent>
+                  </Tabs>
+
+                  {prompt.isPremium && !IS_PRO_USER && (
+                    <div className="absolute inset-0 z-10 flex items-center justify-center p-6 text-center">
+                       <Card className="max-w-md bg-black/60 backdrop-blur-xl border-amber-500/30 p-8 shadow-2xl">
+                          <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                             <Lock className="w-8 h-8 text-amber-500" />
+                          </div>
+                          <h3 className="text-2xl font-bold mb-3">Conteúdo Premium</h3>
+                          <p className="text-muted-foreground text-sm mb-8">
+                             Este prompt faz parte da nossa coleção de elite. Assine o plano PRO para desbloquear este e milhares de outros prompts avançados.
+                          </p>
+                          <Link href="/precos">
+                             <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black font-bold gap-2">
+                                <Crown className="w-4 h-4" /> Desbloquear Agora
+                             </Button>
+                          </Link>
+                       </Card>
                     </div>
-                  </TabsContent>
-                </Tabs>
+                  )}
+                </div>
               </section>
 
               {/* Instructions and Usage */}

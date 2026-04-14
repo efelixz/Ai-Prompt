@@ -101,9 +101,11 @@ export default async function AdminDashboardPage() {
            </div>
            <div className="flex gap-3">
               <Button variant="outline" className="border-white/10 hover:bg-white/5">Exportar CSV</Button>
-              <Button className="gap-2 bg-primary text-white hover:bg-primary/90">
-                 <Plus className="w-4 h-4" /> Novo Prompt
-              </Button>
+              <Link href="/admin/prompts/new">
+                <Button className="gap-2 bg-primary text-white hover:bg-primary/90">
+                  <Plus className="w-4 h-4" /> Novo Prompt
+                </Button>
+              </Link>
            </div>
         </div>
 
@@ -189,9 +191,11 @@ export default async function AdminDashboardPage() {
                              </td>
                              <td className="px-6 py-4 text-right">
                                 <div className="flex justify-end gap-1">
-                                   <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-white">
-                                      <Edit className="w-4 h-4" />
-                                   </Button>
+                                   <Link href={`/admin/prompts/${prompt.id}`}>
+                                      <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-white">
+                                         <Edit className="w-4 h-4" />
+                                      </Button>
+                                   </Link>
                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-red-400">
                                       <Trash className="w-4 h-4" />
                                    </Button>

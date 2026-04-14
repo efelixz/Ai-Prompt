@@ -1,39 +1,17 @@
-import { Search, Grid, Layout, Image as ImageIcon, Video, Megaphone, Code, Briefcase, GraduationCap, ChevronRight, Star, Copy, Zap, CheckCircle2 } from "lucide-react";
+import { Search, Grid, Layout, Image as ImageIcon, Video, Megaphone, Code, Briefcase, GraduationCap, ChevronRight, Star, Copy, Zap, CheckCircle2, Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { getPrompts } from "@/lib/prompts";
+import Link from "next/link";
 
-async function getPrompts() {
-  // In a real app, this would be a full URL if on client, or direct DB call on server.
-  // For this mock, we'll return the same data as the API.
-  return [
-    {
-      id: '1',
-      title: 'Arquitetura Etérea Hiper-realista',
-      slug: 'arquitetura-eterea-hiper-realista',
-      shortDescription: 'Gere estruturas arquitetônicas deslumbrantes que misturam formas orgânicas com materiais futuristas.',
-      isFeatured: true,
-      aiTools: ['Midjourney'],
-      category: 'Arquitetura',
-      author: 'Erik Luminary'
-    },
-    {
-      id: '2',
-      title: 'Framework de Lógica para Micro-interações',
-      slug: 'framework-logica-micro-interacoes',
-      shortDescription: 'Um prompt de precisão para criar micro-interações complexas em React com lógica de estado performática.',
-      isFeatured: true,
-      aiTools: ['ChatGPT-4'],
-      category: 'Domínio de Código',
-      author: 'Miles Indigo'
-    }
-  ];
-}
+export const dynamic = 'force-dynamic';
 
 export default async function LandingPage() {
-  const featuredPrompts = await getPrompts();
+  const allPrompts = await getPrompts();
+  const featuredPrompts = allPrompts.filter(p => p.isFeatured).slice(0, 4);
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
@@ -128,45 +106,48 @@ export default async function LandingPage() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {featuredPrompts.map((prompt) => (
-              <Card key={prompt.id} className="bg-white/5 border-white/10 overflow-hidden group">
-                <div className="aspect-video bg-gradient-to-br from-purple-900/40 to-black relative overflow-hidden flex items-center justify-center">
-                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-primary/20" />
-                  {prompt.id === '1' ? (
-                    <div className="w-48 h-48 border-2 border-primary/30 rounded-full animate-[spin_10s_linear_infinite] flex items-center justify-center">
-                      <div className="w-32 h-32 border border-primary/40 rounded-full animate-[spin_6s_linear_infinite_reverse]" />
+              <Link key={prompt.id} href={`/prompt/${prompt.slug}`}>
+                <Card className="bg-white/5 border-white/10 overflow-hidden group h-full flex flex-col">
+                  <div className="aspect-video bg-gradient-to-br from-purple-900/40 to-black relative overflow-hidden flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-from)_0%,_transparent_70%)] from-primary/20" />
+                    <Zap className="w-16 h-16 text-primary/10 group-hover:text-primary/40 transition-colors" />
+                    {prompt.isPremium && (
+                      <Badge className="absolute top-4 right-4 bg-amber-500 text-black border-none text-[10px] font-bold">
+                        <Crown className="w-3 h-3 mr-1" /> PREMIUM
+                      </Badge>
+                    )}
+                  </div>
+                  <CardHeader className="p-8">
+                    <div className="flex gap-2 mb-4">
+                      {prompt.aiTools.slice(0, 1).map((tool: string) => (
+                        <Badge key={tool} variant="secondary" className="bg-primary/20 text-primary border-none text-[10px] uppercase tracking-wider">{tool}</Badge>
+                      ))}
+                      <Badge variant="secondary" className="bg-white/10 text-muted-foreground border-none text-[10px] uppercase tracking-wider">{prompt.category}</Badge>
                     </div>
-                  ) : (
-                    <div className="w-full h-full p-12">
-                      <div className="w-full h-full border border-white/10 rounded-xl flex items-center justify-center bg-black/40">
-                        <Code className="w-16 h-16 text-primary/40" />
+                    <CardTitle className="text-2xl mb-4 group-hover:text-primary transition-colors line-clamp-1">{prompt.title}</CardTitle>
+                    <CardDescription className="text-base text-muted-foreground leading-relaxed line-clamp-2">
+                      {prompt.shortDescription}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardFooter className="px-8 pb-8 flex items-center justify-between mt-auto">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center font-bold text-[10px]">
+                        {prompt.author[0]}
                       </div>
+                      <span>{prompt.author}</span>
                     </div>
-                  )}
-                </div>
-                <CardHeader className="p-8">
-                  <div className="flex gap-2 mb-4">
-                    {prompt.aiTools.map(tool => (
-                      <Badge key={tool} variant="secondary" className="bg-primary/20 text-primary border-none text-[10px] uppercase tracking-wider">{tool}</Badge>
-                    ))}
-                    <Badge variant="secondary" className="bg-white/10 text-muted-foreground border-none text-[10px] uppercase tracking-wider">{prompt.category}</Badge>
-                  </div>
-                  <CardTitle className="text-2xl mb-4 group-hover:text-primary transition-colors">{prompt.title}</CardTitle>
-                  <CardDescription className="text-base text-muted-foreground leading-relaxed">
-                    {prompt.shortDescription}
-                  </CardDescription>
-                </CardHeader>
-                <CardFooter className="px-8 pb-8 flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <div className="w-6 h-6 rounded-full bg-primary/20" />
-                    <span>{prompt.author}</span>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="icon" className="border-white/10 bg-white/5 hover:bg-white/10">
-                      <Copy className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardFooter>
-              </Card>
+                    <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-1 text-amber-400">
+                        <Star className="w-4 h-4 fill-current" />
+                        <span className="text-sm font-bold">{Number((prompt as any).ratingAvg || 0).toFixed(1)}</span>
+                      </div>
+                      <Button variant="outline" size="icon" className="border-white/10 bg-white/5 hover:bg-white/10">
+                        <Copy className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardFooter>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>

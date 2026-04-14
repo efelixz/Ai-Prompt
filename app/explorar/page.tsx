@@ -6,9 +6,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getPrompts, getCategories, getAITools } from "@/lib/prompts";
+import { getPrompts, getCategories, getAITools, getUserCollections } from "@/lib/prompts";
 import { FavoriteButton } from "@/components/favorite-button";
+import { CollectionSelect } from "@/components/collection-select";
+import { CopyButton } from "@/components/copy-button";
 import Link from "next/link";
+import { Crown } from "lucide-react";
+
+const TEST_USER_ID = 'user_test_123';
 
 export default async function ExplorePage({
   searchParams,
@@ -22,10 +27,11 @@ export default async function ExplorePage({
 }) {
   const { q, cat, tool, diff } = await searchParams;
 
-  const [prompts, allCategories, allTools] = await Promise.all([
+  const [prompts, allCategories, allTools, collections] = await Promise.all([
     getPrompts({ search: q, category: cat, tool: tool, difficulty: diff }),
     getCategories(),
     getAITools(),
+    getUserCollections(TEST_USER_ID),
   ]);
 
   return (
@@ -208,6 +214,11 @@ export default async function ExplorePage({
                       <Badge className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border-white/10 text-[10px] uppercase font-bold">
                         {prompt.category}
                       </Badge>
+                      {prompt.isPremium && (
+                        <Badge className="absolute top-4 right-4 bg-amber-500 text-black border-none text-[10px] font-bold">
+                          <Crown className="w-3 h-3 mr-1" /> PREMIUM
+                        </Badge>
+                      )}
                     </div>
                     <CardHeader className="p-6">
                       <div className="flex gap-2 mb-3">
@@ -236,9 +247,8 @@ export default async function ExplorePage({
                       </div>
                       <div className="flex gap-2">
                         <FavoriteButton promptId={prompt.id} />
-                        <Button size="sm" variant="secondary" className="bg-white/5 hover:bg-white/10 gap-2 h-8 text-xs font-bold">
-                          <Copy className="w-3.5 h-3.5" /> Copiar
-                        </Button>
+                        <CollectionSelect promptId={prompt.id} collections={collections} />
+                        <CopyButton promptId={prompt.id} textToCopy={prompt.promptText} className="bg-white/5 hover:bg-white/10" />
                       </div>
                     </CardFooter>
                   </Card>

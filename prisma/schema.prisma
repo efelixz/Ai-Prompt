@@ -19,6 +19,8 @@ model User {
   favorites     Favorite[]
   collections   Collection[]
   prompts       Prompt[]     @relation("UserPrompts")
+  copyHistory   CopyHistory[]
+  ratings       PromptRating[]
 }
 
 model AITool {
@@ -88,6 +90,8 @@ model Prompt {
   assets            PromptAsset[]
   favorites         Favorite[]
   collections       CollectionItem[]
+  copyHistory       CopyHistory[]
+  ratings           PromptRating[]
 }
 
 model PromptExample {
@@ -159,4 +163,25 @@ model CollectionItem {
   prompt       Prompt     @relation(fields: [promptId], references: [id], onDelete: Cascade)
   sortOrder    Int        @default(0)
   createdAt    DateTime   @default(now())
+}
+
+model CopyHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  promptId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+}
+
+model PromptRating {
+  id        String   @id @default(uuid())
+  userId    String
+  promptId  String
+  value     Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, promptId])
 }

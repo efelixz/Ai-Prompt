@@ -204,6 +204,42 @@ export async function getUserCollections(userId: string) {
   }
 }
 
+export async function getCopyHistory(userId: string) {
+  try {
+    const history = await prisma.copyHistory.findMany({
+      where: { userId },
+      include: {
+        prompt: {
+          include: {
+            category: true,
+            aiTools: {
+              include: {
+                tool: true
+              }
+            },
+            tags: {
+              include: {
+                tag: true
+              }
+            },
+            author: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
+
+    return history.map(h => ({
+      ...mapPrompt(h.prompt),
+      copiedAt: h.createdAt
+    }));
+  } catch (error) {
+    console.error("Error fetching copy history", error);
+    return [];
+  }
+}
+
 function mapPrompt(p: any) {
   return {
     id: p.id,
