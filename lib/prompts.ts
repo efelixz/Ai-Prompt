@@ -93,6 +93,36 @@ export async function getTrendingPrompts() {
   }
 }
 
+export async function getPromptOfDay() {
+  try {
+    // Para o protótipo, pegamos o prompt com maior avaliação ou um destaque aleatório
+    const prompt = await prisma.prompt.findFirst({
+      where: { status: 'published', isFeatured: true },
+      include: {
+        category: true,
+        aiTools: {
+          include: {
+            tool: true
+          }
+        },
+        tags: {
+          include: {
+            tag: true
+          }
+        },
+        author: true,
+      },
+      orderBy: { ratingAvg: 'desc' }
+    });
+
+    if (!prompt) return null;
+    return mapPrompt(prompt);
+  } catch (error) {
+    console.error("Error fetching prompt of the day", error);
+    return null;
+  }
+}
+
 export async function getCollectionDetail(collectionId: string) {
   try {
     const collection = await prisma.collection.findUnique({

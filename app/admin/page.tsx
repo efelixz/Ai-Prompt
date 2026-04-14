@@ -16,7 +16,8 @@ import {
   Shield,
   LayoutDashboard,
   Settings,
-  ChevronRight
+  ChevronRight,
+  Globe
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,6 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { getPrompts } from "@/lib/prompts";
 import prisma from "@/lib/prisma";
 import Link from "next/link";
+import { PublishButton } from "@/components/admin/publish-button";
 
 export const dynamic = 'force-dynamic';
 
@@ -187,8 +189,8 @@ export default async function AdminDashboardPage() {
                              </td>
                              <td className="px-6 py-4">
                                 <div className="flex items-center gap-2">
-                                   <div className={`w-2 h-2 rounded-full ${prompt.isFeatured ? "bg-green-500" : "bg-yellow-500"}`} />
-                                   <span className="text-xs">{prompt.isFeatured ? "Publicado" : "Pendente"}</span>
+                                   <div className={`w-2 h-2 rounded-full ${prompt.status === 'published' ? "bg-green-500" : "bg-yellow-500"}`} />
+                                   <span className="text-xs">{prompt.status === 'published' ? "Publicado" : "Pendente"}</span>
                                 </div>
                              </td>
                              <td className="px-6 py-4">
@@ -205,6 +207,7 @@ export default async function AdminDashboardPage() {
                              </td>
                              <td className="px-6 py-4 text-right">
                                 <div className="flex justify-end gap-1">
+                                   <PublishButton promptId={prompt.id} currentStatus={prompt.status} />
                                    <Link href={`/admin/prompts/${prompt.id}`}>
                                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-white">
                                          <Edit className="w-4 h-4" />

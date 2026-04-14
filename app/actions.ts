@@ -189,6 +189,21 @@ export async function logPromptCopy(promptId: string) {
   }
 }
 
+export async function publishPrompt(promptId: string) {
+  try {
+    await prisma.prompt.update({
+      where: { id: promptId },
+      data: { status: 'published', publishedAt: new Date() },
+    });
+    revalidatePath('/admin');
+    revalidatePath('/explorar');
+    return { success: true };
+  } catch (error) {
+    console.error('Error publishing prompt:', error);
+    return { success: false };
+  }
+}
+
 export async function saveOnboarding(data: {
   objectives: string[];
   tools: string[];

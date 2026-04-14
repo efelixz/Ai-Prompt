@@ -1,4 +1,4 @@
-import { Search, Filter, SlidersHorizontal, Grid2X2, List, Copy, Star, ChevronDown, Check, Code, TrendingUp } from "lucide-react";
+import { Search, Filter, SlidersHorizontal, Grid2X2, List, Copy, Star, ChevronDown, Check, Code, TrendingUp, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getPrompts, getCategories, getAITools, getUserCollections, getTrendingPrompts } from "@/lib/prompts";
+import { getPrompts, getCategories, getAITools, getUserCollections, getTrendingPrompts, getPromptOfDay } from "@/lib/prompts";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
@@ -28,12 +28,13 @@ export default async function ExplorePage({
 }) {
   const { q, cat, tool, diff } = await searchParams;
 
-  const [prompts, allCategories, allTools, collections, trending] = await Promise.all([
+  const [prompts, allCategories, allTools, collections, trending, promptOfDay] = await Promise.all([
     getPrompts({ search: q, category: cat, tool: tool, difficulty: diff }),
     getCategories(),
     getAITools(),
     getUserCollections(TEST_USER_ID),
     getTrendingPrompts(),
+    getPromptOfDay(),
   ]);
 
   return (
@@ -133,6 +134,35 @@ export default async function ExplorePage({
 
           {/* Main Content */}
           <section className="flex-1">
+            {/* Prompt of the Day Spotlight */}
+            {!q && !cat && !tool && !diff && promptOfDay && (
+               <div className="mb-12 relative overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-br from-primary/10 via-background to-background p-8 md:p-12 group">
+                  <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                     <Sparkles className="w-32 h-32 text-primary" />
+                  </div>
+                  <div className="relative z-10 max-w-2xl">
+                     <Badge className="mb-4 bg-primary text-white border-none gap-1.5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest">
+                        <Sparkles className="w-3 h-3" /> Prompt do Dia
+                     </Badge>
+                     <h2 className="text-3xl md:text-4xl font-bold mb-4 group-hover:text-primary transition-colors">{promptOfDay.title}</h2>
+                     <p className="text-muted-foreground text-lg mb-8 line-clamp-2">
+                        {promptOfDay.shortDescription}
+                     </p>
+                     <div className="flex flex-wrap gap-4 items-center">
+                        <Link href={`/prompt/${promptOfDay.slug}`}>
+                           <Button className="bg-primary text-white hover:bg-primary/90 gap-2 font-bold px-8">
+                              Ver Detalhes <ArrowRight className="w-4 h-4" />
+                           </Button>
+                        </Link>
+                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                           <span>{promptOfDay.aiTools[0]}</span>
+                           <span className="w-1 h-1 rounded-full bg-white/20" />
+                           <span>{promptOfDay.category}</span>
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            )}
             {/* Search and View Controls */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <form action="/explorar" className="relative flex-1 group">
