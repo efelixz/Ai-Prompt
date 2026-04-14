@@ -1,0 +1,162 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id @default(uuid())
+  name          String?
+  email         String       @unique
+  avatarUrl     String?
+  status        String       @default("active")
+  role          String       @default("user")
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  favorites     Favorite[]
+  collections   Collection[]
+  prompts       Prompt[]     @relation("UserPrompts")
+}
+
+model AITool {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  vendor      String?
+  toolType    String?
+  description String?
+  logoUrl     String?
+  websiteUrl  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  prompts     PromptAITool[]
+}
+
+model Category {
+  id          String   @id @default(uuid())
+  name        String
+  slug        String   @unique
+  description String?
+  icon        String?
+  parentId    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  prompts     Prompt[]
+}
+
+model Tag {
+  id        String      @id @default(uuid())
+  name      String      @unique
+  prompts   PromptTag[]
+}
+
+model Prompt {
+  id                String          @id @default(uuid())
+  title             String
+  slug              String          @unique
+  shortDescription  String
+  fullDescription   String?
+  promptText        String
+  promptTextShort   String?
+  promptTextAdvanced String?
+  usageInstructions String?
+  difficultyLevel   String          @default("beginner")
+  language          String          @default("pt-BR")
+  status            String          @default("draft")
+  visibility        String          @default("public")
+  isFeatured        Boolean         @default(false)
+  isPremium         Boolean         @default(false)
+  viewCount         Int             @default(0)
+  copyCount         Int             @default(0)
+  favoriteCount     Int             @default(0)
+  ratingAvg         Decimal         @default(0.0)
+  publishedAt       DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  category          Category        @relation(fields: [categoryId], references: [id])
+  categoryId        String
+  author            User            @relation("UserPrompts", fields: [authorId], references: [id])
+  authorId          String
+
+  aiTools           PromptAITool[]
+  tags              PromptTag[]
+  examples          PromptExample[]
+  assets            PromptAsset[]
+  favorites         Favorite[]
+  collections       CollectionItem[]
+}
+
+model PromptExample {
+  id                String   @id @default(uuid())
+  promptId          String
+  prompt            Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  inputExample      String?
+  outputExample     String?
+  resultDescription String?
+  exampleOrder      Int      @default(0)
+}
+
+model PromptAsset {
+  id           String   @id @default(uuid())
+  promptId     String
+  prompt       Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  assetType    String
+  assetUrl     String
+  thumbnailUrl String?
+  mimeType     String?
+  sortOrder    Int      @default(0)
+}
+
+model PromptAITool {
+  promptId String
+  toolId   String
+  prompt   Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  tool     AITool @relation(fields: [toolId], references: [id], onDelete: Cascade)
+
+  @@id([promptId, toolId])
+}
+
+model PromptTag {
+  promptId String
+  tagId    String
+  prompt   Prompt @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  tag      Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([promptId, tagId])
+}
+
+model Favorite {
+  userId    String
+  promptId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, promptId])
+}
+
+model Collection {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  isPublic    Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  items       CollectionItem[]
+}
+
+model CollectionItem {
+  id           String     @id @default(uuid())
+  collectionId String
+  promptId     String
+  collection   Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  prompt       Prompt     @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  sortOrder    Int        @default(0)
+  createdAt    DateTime   @default(now())
+}
