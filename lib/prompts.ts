@@ -252,14 +252,19 @@ function mapPrompt(p: any) {
     promptTextAdvanced: p.promptTextAdvanced,
     isFeatured: p.isFeatured,
     isPremium: p.isPremium,
-    aiTools: p.aiTools.map((at: any) => at.tool.name),
-    category: p.category.name,
+    ratingAvg: Number(p.ratingAvg) || 0,
+    aiTools: p.aiTools?.map((at: any) => at.tool.name) || [],
+    aiToolsIds: p.aiTools?.map((at: any) => at.toolId) || [],
+    category: p.category?.name || 'Geral',
+    categoryId: p.categoryId,
     difficulty: mapDifficulty(p.difficultyLevel),
+    difficultyLevel: p.difficultyLevel,
     author: p.author?.name || 'Sistema',
-    tags: p.tags.map((pt: any) => pt.tag.name),
+    tags: p.tags?.map((pt: any) => pt.tag.name) || [],
     usageInstructions: p.usageInstructions,
     inputExample: p.examples?.[0]?.inputExample,
     outputExample: p.examples?.[0]?.outputExample,
+    viewCount: p.viewCount,
     tips: [] // Pode ser expandido se adicionarmos ao schema
   };
 }

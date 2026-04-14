@@ -7,6 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { FavoriteButton } from "@/components/favorite-button";
 import { CopyButton } from "@/components/copy-button";
+import { Navbar } from "@/components/navbar";
 
 const TEST_USER_ID = 'user_test_123';
 
@@ -17,24 +18,7 @@ export default async function HistoryPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white font-bold">O</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight">Obsidian</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Início</Link>
-            <Link href="/explorar" className="hover:text-primary transition-colors">Explorar</Link>
-            <Link href="/colecoes" className="hover:text-primary transition-colors">Coleções</Link>
-            <Link href="/favoritos" className="hover:text-primary transition-colors">Favoritos</Link>
-            <Link href="/historico" className="text-primary">Histórico</Link>
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="pt-24 pb-12 container mx-auto px-4">
         <div className="flex items-center gap-3 mb-8">

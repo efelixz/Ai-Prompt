@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { getPrompts } from "@/lib/prompts";
+import { Navbar } from "@/components/navbar";
 import Link from "next/link";
 
 export const dynamic = 'force-dynamic';
@@ -15,24 +16,7 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground selection:bg-primary/30">
-      {/* Header/Navbar */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" fill="white" />
-            </div>
-            <span className="text-xl font-bold tracking-tight">Obsidian</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#" className="hover:text-primary transition-colors">Marketplace</a>
-            <a href="#" className="hover:text-primary transition-colors">Studio</a>
-            <a href="#" className="hover:text-primary transition-colors">Recursos</a>
-            <a href="#" className="hover:text-primary transition-colors">Preços</a>
-          </nav>
-          <Button size="sm" className="bg-primary text-white hover:bg-primary/90">Começar Agora</Button>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="pt-32 pb-20">
         {/* Hero Section */}

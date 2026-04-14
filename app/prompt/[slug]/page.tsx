@@ -11,6 +11,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
 import { Rating } from "@/components/rating";
+import { Navbar } from "@/components/navbar";
 import { Metadata } from 'next';
 import { Lock, Crown } from "lucide-react";
 
@@ -63,27 +64,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar Reused */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white font-bold">O</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight">Obsidian</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Início</Link>
-            <Link href="/explorar" className="hover:text-primary transition-colors">Explorar</Link>
-            <a href="#" className="hover:text-primary transition-colors">Marketplace</a>
-            <a href="#" className="hover:text-primary transition-colors">Preços</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Entrar</Button>
-            <Button size="sm">Começar Agora</Button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="pt-24 pb-20">
         <div className="container mx-auto px-4">
@@ -136,7 +117,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                    </div>
                    <Separator orientation="vertical" className="h-8 bg-white/10" />
                    <div className="flex items-center gap-6">
-                      <Rating promptId={prompt.id} initialValue={Number((prompt as any).ratingAvg || 0)} />
+                      <Rating promptId={prompt.id} initialValue={prompt.ratingAvg} />
                    </div>
                    <Separator orientation="vertical" className="h-8 bg-white/10" />
                    <div className="flex items-center gap-4">
@@ -148,7 +129,23 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                          <CollectionSelect promptId={prompt.id} collections={collections} />
                          <span className="text-sm text-muted-foreground">Colecionar</span>
                       </div>
-                      <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-primary ml-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="gap-2 text-muted-foreground hover:text-primary ml-2"
+                        onClick={() => {
+                          if (navigator.share) {
+                            navigator.share({
+                              title: prompt.title,
+                              text: prompt.shortDescription,
+                              url: window.location.href,
+                            });
+                          } else {
+                            navigator.clipboard.writeText(window.location.href);
+                            alert('Link copiado para a área de transferência!');
+                          }
+                        }}
+                      >
                         <Share2 className="w-4 h-4" /> Compartilhar
                       </Button>
                    </div>
@@ -178,39 +175,45 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                     <TabsContent value="main" className="relative group">
                       <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
                         <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Base Prompt</div>
-                        <CopyButton
-                          promptId={prompt.id}
-                          textToCopy={prompt.promptText}
-                          variant="default"
-                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
-                        />
-                        {prompt.promptText}
+                        {(!prompt.isPremium || IS_PRO_USER) && (
+                          <CopyButton
+                            promptId={prompt.id}
+                            textToCopy={prompt.promptText}
+                            variant="default"
+                            className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                          />
+                        )}
+                        {prompt.isPremium && !IS_PRO_USER ? '################################################################################################################################' : prompt.promptText}
                       </div>
                     </TabsContent>
 
                     <TabsContent value="short" className="relative group">
                       <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
                         <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Condensed Version</div>
-                        <CopyButton
-                          promptId={prompt.id}
-                          textToCopy={prompt.promptTextShort || prompt.promptText}
-                          variant="default"
-                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
-                        />
-                        {prompt.promptTextShort || prompt.promptText}
+                        {(!prompt.isPremium || IS_PRO_USER) && (
+                          <CopyButton
+                            promptId={prompt.id}
+                            textToCopy={prompt.promptTextShort || prompt.promptText}
+                            variant="default"
+                            className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                          />
+                        )}
+                        {prompt.isPremium && !IS_PRO_USER ? '################################################################' : (prompt.promptTextShort || prompt.promptText)}
                       </div>
                     </TabsContent>
 
                     <TabsContent value="advanced" className="relative group">
                       <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
                         <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Power User Mode</div>
-                        <CopyButton
-                          promptId={prompt.id}
-                          textToCopy={prompt.promptTextAdvanced || prompt.promptText}
-                          variant="default"
-                          className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
-                        />
-                        {prompt.promptTextAdvanced || prompt.promptText}
+                        {(!prompt.isPremium || IS_PRO_USER) && (
+                          <CopyButton
+                            promptId={prompt.id}
+                            textToCopy={prompt.promptTextAdvanced || prompt.promptText}
+                            variant="default"
+                            className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                          />
+                        )}
+                        {prompt.isPremium && !IS_PRO_USER ? '################################################################################################################################################################' : (prompt.promptTextAdvanced || prompt.promptText)}
                       </div>
                     </TabsContent>
                   </Tabs>
@@ -333,7 +336,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                   <h3 className="text-xl font-bold">Relacionados</h3>
                   <div className="space-y-4">
                     {relatedPrompts.map((rp: any) => (
-                      <Link key={rp.id} href={`/prompts/${rp.slug}`}>
+                      <Link key={rp.id} href={`/prompt/${rp.slug}`}>
                         <Card className="bg-white/5 border-white/10 hover:border-primary/50 transition-all group p-4 cursor-pointer">
                           <div className="flex gap-4 items-center">
                             <div className="w-16 h-16 rounded-lg bg-white/5 shrink-0 flex items-center justify-center">

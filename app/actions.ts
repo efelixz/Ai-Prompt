@@ -2,6 +2,7 @@
 
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { trackEvent } from '@/lib/analytics';
 
 /**
  * Nota: Em um app real, o userId seria extraído da sessão (ex: via Clerk ou NextAuth).
@@ -11,6 +12,7 @@ const TEST_USER_ID = 'user_test_123';
 
 export async function toggleFavorite(promptId: string) {
   try {
+    await trackEvent('prompt_favorited_toggled', { promptId, userId: TEST_USER_ID });
     const existing = await prisma.favorite.findUnique({
       where: {
         userId_promptId: {
@@ -166,6 +168,7 @@ export async function updatePrompt(id: string, data: any) {
 
 export async function logPromptCopy(promptId: string) {
   try {
+    await trackEvent('prompt_copied', { promptId, userId: TEST_USER_ID });
     await prisma.copyHistory.create({
       data: {
         userId: TEST_USER_ID,
@@ -186,8 +189,34 @@ export async function logPromptCopy(promptId: string) {
   }
 }
 
+export async function saveOnboarding(data: {
+  objectives: string[];
+  tools: string[];
+  categories: string[];
+}) {
+  try {
+    await trackEvent('onboarding_completed', { userId: TEST_USER_ID, ...data });
+
+    // In a real app, we would update the user profile or preferences table
+    await prisma.user.update({
+      where: { id: TEST_USER_ID },
+      data: {
+        // Simulating preference storage as a JSON string or meta if not in schema
+        // For now, just confirming success
+        status: 'active'
+      }
+    });
+
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving onboarding:', error);
+    return { success: false };
+  }
+}
+
 export async function ratePrompt(promptId: string, value: number) {
   try {
+    await trackEvent('prompt_rated', { promptId, userId: TEST_USER_ID, value });
     await prisma.promptRating.upsert({
       where: {
         userId_promptId: {

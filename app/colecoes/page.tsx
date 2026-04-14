@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { Navbar } from "@/components/navbar";
 import Link from "next/link";
 import { getUserCollections } from "@/lib/prompts";
 
@@ -23,30 +24,7 @@ export default async function CollectionsPage() {
   const collections = await getUserCollections(TEST_USER_ID);
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-white font-bold">O</span>
-              </div>
-              <span className="text-xl font-bold tracking-tight">Obsidian</span>
-            </Link>
-          </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <Link href="/" className="hover:text-primary transition-colors">Início</Link>
-            <Link href="/explorar" className="hover:text-primary transition-colors">Explorar</Link>
-            <Link href="/colecoes" className="text-primary">Minhas Coleções</Link>
-            <Link href="/favoritos" className="hover:text-primary transition-colors">Favoritos</Link>
-          </nav>
-          <div className="flex items-center gap-4">
-             <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center text-[10px] font-bold text-primary">
-                JD
-             </div>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="pt-24 pb-12 container mx-auto px-4">
         {/* Header Section */}

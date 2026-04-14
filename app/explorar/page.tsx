@@ -10,6 +10,7 @@ import { getPrompts, getCategories, getAITools, getUserCollections } from "@/lib
 import { FavoriteButton } from "@/components/favorite-button";
 import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
+import { Navbar } from "@/components/navbar";
 import Link from "next/link";
 import { Crown } from "lucide-react";
 
@@ -36,27 +37,7 @@ export default async function ExplorePage({
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Navbar Reused (Ideally would be in a layout) */}
-      <header className="fixed top-0 w-full z-50 border-b border-white/10 bg-background/80 backdrop-blur-md">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-              <span className="text-white font-bold">O</span>
-            </div>
-            <span className="text-xl font-bold tracking-tight">Obsidian</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="/" className="hover:text-primary transition-colors">Início</a>
-            <a href="/explorar" className="text-primary">Explorar</a>
-            <a href="#" className="hover:text-primary transition-colors">Marketplace</a>
-            <a href="#" className="hover:text-primary transition-colors">Preços</a>
-          </nav>
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="hidden sm:inline-flex">Entrar</Button>
-            <Button size="sm">Começar Agora</Button>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="pt-24 pb-12 container mx-auto px-4">
         <div className="flex flex-col md:flex-row gap-8">

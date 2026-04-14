@@ -21,6 +21,8 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent } from "@/components/ui/card";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+import { saveOnboarding } from "@/app/actions";
 
 const steps = [
   { id: 1, title: "Objetivos", description: "O que você quer alcançar com IA?" },
@@ -61,6 +63,7 @@ const categories = [
 
 export default function OnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [selections, setSelections] = useState<{
     goals: string[];
     tools: string[];
@@ -82,11 +85,21 @@ export default function OnboardingPage() {
     }));
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (currentStep < 3) setCurrentStep(prev => prev + 1);
     else {
-      // Finalize onboarding
-      router.push("/explorar");
+      setIsSubmitting(true);
+      const result = await saveOnboarding({
+         objectives: selections.goals,
+         tools: selections.tools,
+         categories: selections.categories
+      });
+      if (result.success) {
+         router.push("/explorar");
+      } else {
+         alert("Erro ao salvar suas preferências.");
+      }
+      setIsSubmitting(false);
     }
   };
 
@@ -214,10 +227,17 @@ export default function OnboardingPage() {
                 <Button variant="ghost" className="text-muted-foreground hover:text-white">Pular</Button>
              </Link>
              <Button
-              className="gap-2 px-8 bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
+              disabled={isSubmitting}
+              className="gap-2 px-8 bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20 min-w-[140px]"
               onClick={nextStep}
              >
-              {currentStep === 3 ? "Finalizar" : "Continuar"} <ChevronRight className="w-4 h-4" />
+              {isSubmitting ? (
+                 <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                 <>
+                   {currentStep === 3 ? "Finalizar" : "Continuar"} <ChevronRight className="w-4 h-4" />
+                 </>
+              )}
              </Button>
           </div>
         </div>

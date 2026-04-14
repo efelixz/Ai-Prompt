@@ -32,7 +32,7 @@ export function PromptForm({
     status: initialData?.status || 'draft',
     isFeatured: initialData?.isFeatured || false,
     isPremium: initialData?.isPremium || false,
-    tools: initialData?.aiTools?.map((t: any) => t.toolId) || [],
+    tools: initialData?.aiToolsIds || initialData?.aiTools?.map((t: any) => t.toolId) || [],
   });
 
   async function handleSubmit(e: React.FormEvent) {
