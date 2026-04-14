@@ -160,7 +160,7 @@ export default function PricingPage() {
         {/* FAQ Section */}
         <section className="container mx-auto px-4 max-w-3xl">
           <h2 className="text-3xl font-bold mb-12 text-center">Perguntas <span className="text-primary">Frequentes</span></h2>
-          <Accordion type="single" collapsible className="space-y-4">
+          <Accordion className="space-y-4">
             <AccordionItem value="item-1" className="border-white/10 bg-white/5 rounded-xl px-6">
               <AccordionTrigger className="hover:no-underline font-bold text-left py-6">Como funciona o pagamento?</AccordionTrigger>
               <AccordionContent className="text-muted-foreground leading-relaxed pb-6">

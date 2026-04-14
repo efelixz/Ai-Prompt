@@ -24,17 +24,35 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { getPrompts } from "@/lib/prompts";
+import prisma from "@/lib/prisma";
 import Link from "next/link";
 
-const stats = [
-  { label: "Prompts Ativos", value: "1,284", change: "+12%", icon: Database },
-  { label: "Cópias (30d)", value: "45,902", change: "+24%", icon: Copy },
-  { label: "Usuários Pro", value: "892", change: "+8%", icon: Users },
-  { label: "Taxa de Conv.", value: "3.2%", change: "+0.4%", icon: BarChart3 },
-];
+export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
-  const prompts = await getPrompts();
+  let prompts: any[] = [];
+  let promptCount = 0;
+  let userCount = 0;
+  let favoritesCount = 0;
+
+  try {
+    [prompts, promptCount, userCount, favoritesCount] = await Promise.all([
+      getPrompts(),
+      prisma.prompt.count(),
+      prisma.user.count(),
+      prisma.favorite.count(),
+    ]);
+  } catch (error) {
+    console.error("Failed to fetch admin stats", error);
+    // Fallback or empty state
+  }
+
+  const stats = [
+    { label: "Prompts Totais", value: promptCount.toLocaleString(), change: "+12%", icon: Database },
+    { label: "Interações", value: favoritesCount.toLocaleString(), change: "+24%", icon: Copy },
+    { label: "Usuários", value: userCount.toLocaleString(), change: "+8%", icon: Users },
+    { label: "Taxa de Conv.", value: "3.2%", change: "+0.4%", icon: BarChart3 },
+  ];
 
   return (
     <div className="min-h-screen bg-[#050505] text-foreground flex">
@@ -142,7 +160,7 @@ export default async function AdminDashboardPage() {
                        </tr>
                     </thead>
                     <tbody className="text-sm">
-                       {prompts.map((prompt) => (
+                       {prompts.map((prompt: any) => (
                           <tr key={prompt.id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
                              <td className="px-6 py-4">
                                 <div className="font-bold group-hover:text-primary transition-colors">{prompt.title}</div>
@@ -159,7 +177,7 @@ export default async function AdminDashboardPage() {
                              </td>
                              <td className="px-6 py-4">
                                 <div className="flex gap-1">
-                                   {prompt.aiTools.slice(0, 2).map(tool => (
+                                   {prompt.aiTools.slice(0, 2).map((tool: string) => (
                                       <span key={tool} className="text-[10px] font-bold text-muted-foreground uppercase">{tool}</span>
                                    ))}
                                 </div>

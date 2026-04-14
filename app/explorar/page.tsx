@@ -7,6 +7,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { getPrompts } from "@/lib/prompts";
+import { FavoriteButton } from "@/components/favorite-button";
+import Link from "next/link";
 
 export default async function ExplorePage() {
   const prompts = await getPrompts();
@@ -131,57 +133,57 @@ export default async function ExplorePage() {
             {/* Prompts Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 gap-6">
               {prompts.map((prompt: any) => (
-                <Card key={prompt.id} className="bg-white/5 border-white/10 hover:border-primary/50 transition-all group overflow-hidden flex flex-col">
-                  <div className="aspect-[16/9] bg-gradient-to-br from-white/5 to-black/50 relative overflow-hidden flex items-center justify-center border-b border-white/5">
-                    <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                    {prompt.category === 'Arquitetura' && (
-                       <div className="w-24 h-24 border border-primary/20 rounded-full animate-pulse" />
-                    )}
-                    {prompt.category === 'Programação' && (
-                       <Code className="w-12 h-12 text-primary/20" />
-                    )}
-                    {prompt.category === 'Marketing' && (
-                       <Megaphone className="w-12 h-12 text-primary/20" />
-                    )}
-                    <Badge className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border-white/10 text-[10px] uppercase font-bold">
-                      {prompt.category}
-                    </Badge>
-                  </div>
-                  <CardHeader className="p-6">
-                    <div className="flex gap-2 mb-3">
-                      {prompt.aiTools.slice(0, 2).map((tool: string) => (
-                        <span key={tool} className="text-[10px] font-bold text-primary uppercase tracking-wider">{tool}</span>
-                      ))}
+                <Link key={prompt.id} href={`/prompt/${prompt.slug}`}>
+                  <Card className="bg-white/5 border-white/10 hover:border-primary/50 transition-all group overflow-hidden h-full flex flex-col">
+                    <div className="aspect-[16/9] bg-gradient-to-br from-white/5 to-black/50 relative overflow-hidden flex items-center justify-center border-b border-white/5">
+                      <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      {prompt.category === 'Arquitetura' && (
+                        <div className="w-24 h-24 border border-primary/20 rounded-full animate-pulse" />
+                      )}
+                      {prompt.category === 'Programação' && (
+                        <Code className="w-12 h-12 text-primary/20" />
+                      )}
+                      {prompt.category === 'Marketing' && (
+                        <Megaphone className="w-12 h-12 text-primary/20" />
+                      )}
+                      <Badge className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border-white/10 text-[10px] uppercase font-bold">
+                        {prompt.category}
+                      </Badge>
                     </div>
-                    <CardTitle className="text-xl mb-3 group-hover:text-primary transition-colors line-clamp-1">{prompt.title}</CardTitle>
-                    <CardDescription className="line-clamp-2 text-sm leading-relaxed">
-                      {prompt.shortDescription}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="px-6 pb-2 flex-1">
-                    <div className="flex flex-wrap gap-2">
-                      {prompt.tags.map((tag: string) => (
-                        <span key={tag} className="text-[10px] text-muted-foreground">#{tag}</span>
-                      ))}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="p-6 pt-2 flex items-center justify-between border-t border-white/5 mt-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
-                        {prompt.author[0]}
+                    <CardHeader className="p-6">
+                      <div className="flex gap-2 mb-3">
+                        {prompt.aiTools.slice(0, 2).map((tool: string) => (
+                          <span key={tool} className="text-[10px] font-bold text-primary uppercase tracking-wider">{tool}</span>
+                        ))}
                       </div>
-                      <span className="text-xs text-muted-foreground">{prompt.author}</span>
-                    </div>
-                    <div className="flex gap-2">
-                       <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary">
-                         <Star className="w-4 h-4" />
-                       </Button>
-                       <Button size="sm" variant="secondary" className="bg-white/5 hover:bg-white/10 gap-2 h-8 text-xs font-bold">
-                         <Copy className="w-3.5 h-3.5" /> Copiar
-                       </Button>
-                    </div>
-                  </CardFooter>
-                </Card>
+                      <CardTitle className="text-xl mb-3 group-hover:text-primary transition-colors line-clamp-1">{prompt.title}</CardTitle>
+                      <CardDescription className="line-clamp-2 text-sm leading-relaxed">
+                        {prompt.shortDescription}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="px-6 pb-2 flex-1">
+                      <div className="flex flex-wrap gap-2">
+                        {prompt.tags.map((tag: string) => (
+                          <span key={tag} className="text-[10px] text-muted-foreground">#{tag}</span>
+                        ))}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-6 pt-2 flex items-center justify-between border-t border-white/5 mt-4">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-[10px] font-bold text-primary">
+                          {prompt.author[0]}
+                        </div>
+                        <span className="text-xs text-muted-foreground">{prompt.author}</span>
+                      </div>
+                      <div className="flex gap-2">
+                        <FavoriteButton promptId={prompt.id} />
+                        <Button size="sm" variant="secondary" className="bg-white/5 hover:bg-white/10 gap-2 h-8 text-xs font-bold">
+                          <Copy className="w-3.5 h-3.5" /> Copiar
+                        </Button>
+                      </div>
+                    </CardFooter>
+                  </Card>
+                </Link>
               ))}
             </div>
 

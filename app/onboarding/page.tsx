@@ -210,9 +210,9 @@ export default function OnboardingPage() {
           </Button>
 
           <div className="flex gap-3">
-             <Button variant="ghost" asChild className="text-muted-foreground hover:text-foreground">
-                <Link href="/explorar">Pular</Link>
-             </Button>
+             <Link href="/explorar">
+                <Button variant="ghost" className="text-muted-foreground hover:text-white">Pular</Button>
+             </Link>
              <Button
               className="gap-2 px-8 bg-primary text-white hover:bg-primary/90 shadow-lg shadow-primary/20"
               onClick={nextStep}

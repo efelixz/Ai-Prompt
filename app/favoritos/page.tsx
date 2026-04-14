@@ -145,9 +145,9 @@ export default async function FavoritesPage() {
             <p className="text-muted-foreground max-w-sm mb-8">
               Explore nosso catálogo e salve os prompts que você mais gosta para encontrá-los aqui.
             </p>
-            <Button asChild>
-              <Link href="/explorar">Explorar Prompts</Link>
-            </Button>
+            <Link href="/explorar">
+              <Button>Explorar Prompts</Button>
+            </Link>
           </div>
         )}
 

@@ -215,7 +215,7 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                           <CardTitle className="text-sm uppercase tracking-widest text-muted-foreground font-bold">Resultado Esperado</CardTitle>
                        </CardHeader>
                        <CardContent>
-                          <p className="text-sm">{prompt.resultDescription || prompt.outputExample || "O resultado esperado aparecerá aqui..."}</p>
+                          <p className="text-sm">{prompt.outputExample || "O resultado esperado aparecerá aqui..."}</p>
                        </CardContent>
                     </Card>
                  </div>
