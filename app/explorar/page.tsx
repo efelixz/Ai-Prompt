@@ -6,12 +6,27 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { getPrompts } from "@/lib/prompts";
+import { getPrompts, getCategories, getAITools } from "@/lib/prompts";
 import { FavoriteButton } from "@/components/favorite-button";
 import Link from "next/link";
 
-export default async function ExplorePage() {
-  const prompts = await getPrompts();
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<{
+    q?: string;
+    cat?: string;
+    tool?: string;
+    diff?: string;
+  }>;
+}) {
+  const { q, cat, tool, diff } = await searchParams;
+
+  const [prompts, allCategories, allTools] = await Promise.all([
+    getPrompts({ search: q, category: cat, tool: tool, difficulty: diff }),
+    getCategories(),
+    getAITools(),
+  ]);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -45,13 +60,22 @@ export default async function ExplorePage() {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Ferramentas de IA</h3>
               <div className="space-y-3">
-                {['ChatGPT-4', 'Midjourney', 'Claude 3.5', 'Gemini Pro', 'DALL-E 3', 'Perplexity'].map((tool) => (
-                  <div key={tool} className="flex items-center gap-3 group cursor-pointer">
-                    <Checkbox id={tool} className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <label htmlFor={tool} className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer">
-                      {tool}
-                    </label>
-                  </div>
+                {allTools.map((t) => (
+                  <Link
+                    key={t.id}
+                    href={`/explorar?${new URLSearchParams({
+                      ...(q && { q }),
+                      ...(cat && { cat }),
+                      tool: t.slug,
+                      ...(diff && { diff })
+                    }).toString()}`}
+                    className={`flex items-center gap-3 group cursor-pointer ${tool === t.slug ? 'text-primary' : ''}`}
+                  >
+                    <div className={`w-4 h-4 rounded border ${tool === t.slug ? 'bg-primary border-primary' : 'border-white/20'}`} />
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      {t.name}
+                    </span>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -61,13 +85,22 @@ export default async function ExplorePage() {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Categorias</h3>
               <div className="space-y-3">
-                {['Arquitetura', 'Programação', 'Marketing', 'Design', 'Educação', 'Escrita'].map((cat) => (
-                  <div key={cat} className="flex items-center gap-3 group cursor-pointer">
-                    <Checkbox id={cat} className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <label htmlFor={cat} className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer">
-                      {cat}
-                    </label>
-                  </div>
+                {allCategories.map((c) => (
+                  <Link
+                    key={c.id}
+                    href={`/explorar?${new URLSearchParams({
+                      ...(q && { q }),
+                      cat: c.slug,
+                      ...(tool && { tool }),
+                      ...(diff && { diff })
+                    }).toString()}`}
+                    className={`flex items-center gap-3 group cursor-pointer ${cat === c.slug ? 'text-primary' : ''}`}
+                  >
+                    <div className={`w-4 h-4 rounded border ${cat === c.slug ? 'bg-primary border-primary' : 'border-white/20'}`} />
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      {c.name}
+                    </span>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -77,29 +110,55 @@ export default async function ExplorePage() {
             <div>
               <h3 className="text-sm font-bold uppercase tracking-widest text-muted-foreground mb-4">Dificuldade</h3>
               <div className="space-y-3">
-                {['Iniciante', 'Intermediário', 'Avançado'].map((level) => (
-                  <div key={level} className="flex items-center gap-3 group cursor-pointer">
-                    <Checkbox id={level} className="border-white/20 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
-                    <label htmlFor={level} className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors cursor-pointer">
-                      {level}
-                    </label>
-                  </div>
+                {[
+                  { label: 'Iniciante', value: 'beginner' },
+                  { label: 'Intermediário', value: 'intermediate' },
+                  { label: 'Avançado', value: 'advanced' }
+                ].map((level) => (
+                  <Link
+                    key={level.value}
+                    href={`/explorar?${new URLSearchParams({
+                      ...(q && { q }),
+                      ...(cat && { cat }),
+                      ...(tool && { tool }),
+                      diff: level.value
+                    }).toString()}`}
+                    className={`flex items-center gap-3 group cursor-pointer ${diff === level.value ? 'text-primary' : ''}`}
+                  >
+                    <div className={`w-4 h-4 rounded border ${diff === level.value ? 'bg-primary border-primary' : 'border-white/20'}`} />
+                    <span className="text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors">
+                      {level.label}
+                    </span>
+                  </Link>
                 ))}
               </div>
             </div>
+
+            {(q || cat || tool || diff) && (
+              <Link href="/explorar">
+                <Button variant="ghost" className="w-full text-xs text-muted-foreground hover:text-primary">
+                  Limpar Filtros
+                </Button>
+              </Link>
+            )}
           </aside>
 
           {/* Main Content */}
           <section className="flex-1">
             {/* Search and View Controls */}
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <div className="relative flex-1 group">
+              <form action="/explorar" className="relative flex-1 group">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <Input
+                  name="q"
+                  defaultValue={q}
                   placeholder="Pesquisar prompts..."
                   className="pl-10 bg-white/5 border-white/10 focus-visible:ring-primary/50"
                 />
-              </div>
+                {cat && <input type="hidden" name="cat" value={cat} />}
+                {tool && <input type="hidden" name="tool" value={tool} />}
+                {diff && <input type="hidden" name="diff" value={diff} />}
+              </form>
               <div className="flex gap-2">
                 <Button variant="outline" className="border-white/10 bg-white/5 gap-2">
                   <SlidersHorizontal className="w-4 h-4" /> Ordenar <ChevronDown className="w-4 h-4" />

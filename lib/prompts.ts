@@ -1,9 +1,40 @@
 import prisma from './prisma';
 
-export async function getPrompts() {
+export async function getPrompts(filters?: {
+  search?: string;
+  category?: string;
+  tool?: string;
+  difficulty?: string;
+}) {
   try {
+    const where: any = { status: 'published' };
+
+    if (filters?.search) {
+      where.OR = [
+        { title: { contains: filters.search, mode: 'insensitive' } },
+        { shortDescription: { contains: filters.search, mode: 'insensitive' } },
+        { promptText: { contains: filters.search, mode: 'insensitive' } },
+      ];
+    }
+
+    if (filters?.category) {
+      where.category = { slug: filters.category };
+    }
+
+    if (filters?.difficulty) {
+      where.difficultyLevel = filters.difficulty;
+    }
+
+    if (filters?.tool) {
+      where.aiTools = {
+        some: {
+          tool: { slug: filters.tool }
+        }
+      };
+    }
+
     const prompts = await prisma.prompt.findMany({
-      where: { status: 'published' },
+      where,
     include: {
       category: true,
       aiTools: {
@@ -122,6 +153,55 @@ export async function getAITools() {
     where: { isActive: true },
     orderBy: { name: 'asc' }
   });
+}
+
+export async function getFavoritePrompts(userId: string) {
+  try {
+    const favorites = await prisma.favorite.findMany({
+      where: { userId },
+      include: {
+        prompt: {
+          include: {
+            category: true,
+            aiTools: {
+              include: {
+                tool: true
+              }
+            },
+            tags: {
+              include: {
+                tag: true
+              }
+            },
+            author: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+
+    return favorites.map(f => mapPrompt(f.prompt));
+  } catch (error) {
+    console.error("Error fetching favorite prompts", error);
+    return [];
+  }
+}
+
+export async function getUserCollections(userId: string) {
+  try {
+    return prisma.collection.findMany({
+      where: { userId },
+      include: {
+        _count: {
+          select: { items: true }
+        }
+      },
+      orderBy: { updatedAt: 'desc' }
+    });
+  } catch (error) {
+    console.error("Error fetching user collections", error);
+    return [];
+  }
 }
 
 function mapPrompt(p: any) {

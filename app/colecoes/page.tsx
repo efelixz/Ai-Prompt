@@ -5,38 +5,22 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
+import { getUserCollections } from "@/lib/prompts";
 
-const mockCollections = [
-  {
-    id: '1',
-    name: 'Projetos de Arquitetura 2024',
-    description: 'Coleção de prompts focados em visualização arquitetônica, materiais e iluminação realista.',
-    count: 12,
-    isPublic: false,
-    updatedAt: '2 dias atrás',
-    color: 'bg-blue-500/20 border-blue-500/50'
-  },
-  {
-    id: '2',
-    name: 'Marketing & Copywriting',
-    description: 'Templates para anúncios, posts de blog e estratégias de conteúdo para redes sociais.',
-    count: 8,
-    isPublic: true,
-    updatedAt: '5 horas atrás',
-    color: 'bg-purple-500/20 border-purple-500/50'
-  },
-  {
-    id: '3',
-    name: 'Desenvolvimento React',
-    description: 'Prompts para geração de componentes, debug e refatoração de código TypeScript.',
-    count: 15,
-    isPublic: false,
-    updatedAt: '1 semana atrás',
-    color: 'bg-emerald-500/20 border-emerald-500/50'
-  }
+const TEST_USER_ID = 'user_test_123';
+
+const COLORS = [
+  'bg-blue-500/20 border-blue-500/50',
+  'bg-purple-500/20 border-purple-500/50',
+  'bg-emerald-500/20 border-emerald-500/50',
+  'bg-amber-500/20 border-amber-500/50',
+  'bg-pink-500/20 border-pink-500/50',
 ];
 
-export default function CollectionsPage() {
+export const dynamic = 'force-dynamic';
+
+export default async function CollectionsPage() {
+  const collections = await getUserCollections(TEST_USER_ID);
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Navbar */}
@@ -99,11 +83,11 @@ export default function CollectionsPage() {
 
         {/* Collections Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {mockCollections.map((collection) => (
+          {collections.map((collection, index) => (
             <Card key={collection.id} className="bg-white/5 border-white/10 hover:border-primary/40 transition-all group cursor-pointer flex flex-col">
               <CardHeader className="p-6">
                  <div className="flex justify-between items-start mb-6">
-                    <div className={`w-12 h-12 rounded-xl ${collection.color} border flex items-center justify-center`}>
+                    <div className={`w-12 h-12 rounded-xl ${COLORS[index % COLORS.length]} border flex items-center justify-center`}>
                        <Folder className="w-6 h-6 text-foreground" />
                     </div>
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground">
@@ -112,21 +96,21 @@ export default function CollectionsPage() {
                  </div>
                  <CardTitle className="text-xl mb-2 group-hover:text-primary transition-colors">{collection.name}</CardTitle>
                  <CardDescription className="line-clamp-2 text-sm leading-relaxed mb-4">
-                   {collection.description}
+                   {collection.description || "Sem descrição."}
                  </CardDescription>
               </CardHeader>
               <CardContent className="px-6 pb-6 mt-auto">
                  <div className="flex items-center justify-between text-xs text-muted-foreground">
                     <div className="flex items-center gap-4">
                        <span className="flex items-center gap-1.5">
-                          <Badge variant="secondary" className="bg-white/5 hover:bg-white/5 text-[10px] py-0 px-1.5">{collection.count} prompts</Badge>
+                          <Badge variant="secondary" className="bg-white/5 hover:bg-white/5 text-[10px] py-0 px-1.5">{collection._count.items} prompts</Badge>
                        </span>
                        <span className="flex items-center gap-1">
                           {collection.isPublic ? <Users className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
                           {collection.isPublic ? 'Pública' : 'Privada'}
                        </span>
                     </div>
-                    <span>{collection.updatedAt}</span>
+                    <span>{collection.updatedAt.toLocaleDateString('pt-BR')}</span>
                  </div>
               </CardContent>
               <CardFooter className="px-6 py-3 bg-white/5 border-t border-white/5 flex items-center justify-between group-hover:bg-primary/5 transition-colors">

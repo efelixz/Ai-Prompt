@@ -6,16 +6,18 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import Link from "next/link";
-import { getPrompts } from "@/lib/prompts";
+import { getFavoritePrompts } from "@/lib/prompts";
 
-async function getFavorites() {
-    const prompts = await getPrompts();
-    // Simulate only some are favorites
-    return prompts.slice(0, 3);
-}
+/**
+ * Nota: Em um app real, o userId seria extraído da sessão.
+ * Usando o mesmo ID de teste do actions.ts.
+ */
+const TEST_USER_ID = 'user_test_123';
+
+export const dynamic = 'force-dynamic';
 
 export default async function FavoritesPage() {
-  const favorites = await getFavorites();
+  const favorites = await getFavoritePrompts(TEST_USER_ID);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
