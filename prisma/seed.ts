@@ -24,6 +24,8 @@ async function main() {
     { name: 'Midjourney', slug: 'midjourney', vendor: 'Midjourney' },
     { name: 'Gemini', slug: 'gemini', vendor: 'Google' },
     { name: 'DALL-E 3', slug: 'dalle-3', vendor: 'OpenAI' },
+    { name: 'Perplexity', slug: 'perplexity', vendor: 'Perplexity AI' },
+    { name: 'Runway Gen-3', slug: 'runway', vendor: 'Runway' },
   ]
 
   const createdTools = await Promise.all(
@@ -47,6 +49,8 @@ async function main() {
     { name: 'Marketing', slug: 'marketing' },
     { name: 'Design', slug: 'design' },
     { name: 'Vídeo', slug: 'video' },
+    { name: 'Pesquisa', slug: 'pesquisa' },
+    { name: 'Negócios', slug: 'negocios' },
   ]
 
   const createdCategories = await Promise.all(
@@ -92,6 +96,32 @@ async function main() {
       tools: ['chatgpt', 'claude'],
       tags: ['React', 'TypeScript', 'Frontend'],
     },
+    {
+      title: 'Diretor de Cinema: Cinematic Drone Shot',
+      slug: 'diretor-cinema-drone-shot',
+      shortDescription: 'Crie movimentos de câmera complexos para vídeos gerados por IA com visual de Hollywood.',
+      fullDescription: 'Prompt otimizado para Runway Gen-3 e Luma Dream Machine, focando em iluminação volumétrica e paralaxe.',
+      promptText: 'Cinematic wide shot from a drone orbiting a neo-gothic cathedral during a thunderstorm, lightning illuminates the rain-slicked gargoyles, highly detailed, 4k, hyper-realistic video.',
+      difficultyLevel: 'intermediate',
+      isFeatured: true,
+      categoryId: createdCategories.find((c) => c.slug === 'video')!.id,
+      authorId: admin.id,
+      tools: ['runway'],
+      tags: ['Cinematográfico', 'Drone', 'Runway'],
+    },
+    {
+       title: 'Analisador de Mercado em Tempo Real',
+       slug: 'analisador-mercado-perplexity',
+       shortDescription: 'Extraia insights competitivos e tendências atuais utilizando pesquisa profunda.',
+       fullDescription: 'Aproveite o motor de busca do Perplexity para gerar relatórios detalhados sobre qualquer nicho de mercado.',
+       promptText: 'Search for the top 5 emerging trends in [NICHE] for Q2 2024. Provide a competitive analysis of the main players and a list of untapped opportunities.',
+       difficultyLevel: 'beginner',
+       isFeatured: false,
+       categoryId: createdCategories.find((c) => c.slug === 'pesquisa')!.id,
+       authorId: admin.id,
+       tools: ['perplexity'],
+       tags: ['Research', 'Mercado', 'Insights'],
+    }
   ]
 
   for (const p of promptsData) {
