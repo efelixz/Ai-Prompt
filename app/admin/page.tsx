@@ -86,7 +86,7 @@ export default async function AdminDashboardPage() {
             { label: "Dashboard", icon: LayoutDashboard, active: true, href: "/admin" },
             { label: "Gestão de Prompts", icon: Database, active: false, href: "/admin" },
             { label: "Usuários", icon: Users, active: false, href: "/admin/usuarios" },
-            { label: "Analytics", icon: BarChart3, active: false, href: "/admin" },
+            { label: "Logs de Auditoria", icon: Globe, active: false, href: "/admin/logs" },
             { label: "Segurança", icon: Shield, active: false, href: "/admin" },
           ].map((item) => (
             <Link key={item.label} href={item.href}>

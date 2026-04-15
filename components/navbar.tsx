@@ -31,6 +31,9 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
+          <Link href="/dashboard" className="hover:text-primary transition-colors flex items-center gap-1.5">
+             <LayoutDashboard className="w-4 h-4" /> Dashboard
+          </Link>
           <Link href="/explorar" className="hover:text-primary transition-colors flex items-center gap-1.5">
             <Search className="w-4 h-4" /> Explorar
           </Link>
@@ -77,6 +80,7 @@ export function Navbar() {
       {/* Mobile Nav */}
       {isMenuOpen && (
         <div className="md:hidden bg-background border-b border-white/10 p-4 space-y-4 animate-in slide-in-from-top-2">
+          <Link href="/dashboard" className="block py-2 text-sm font-medium" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
           <Link href="/explorar" className="block py-2 text-sm font-medium" onClick={() => setIsMenuOpen(false)}>Explorar</Link>
           <Link href="/colecoes" className="block py-2 text-sm font-medium" onClick={() => setIsMenuOpen(false)}>Coleções</Link>
           <Link href="/favoritos" className="block py-2 text-sm font-medium" onClick={() => setIsMenuOpen(false)}>Favoritos</Link>

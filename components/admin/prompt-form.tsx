@@ -130,6 +130,28 @@ export function PromptForm({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Ferramentas de IA</label>
+            <div className="flex flex-wrap gap-3">
+               {tools.map(tool => (
+                  <label key={tool.id} className="flex items-center gap-2 cursor-pointer bg-white/5 px-3 py-1.5 rounded-lg hover:bg-white/10">
+                     <input
+                        type="checkbox"
+                        checked={formData.tools.includes(tool.id)}
+                        onChange={(e) => {
+                           const newTools = e.target.checked
+                              ? [...formData.tools, tool.id]
+                              : formData.tools.filter((id: string) => id !== tool.id);
+                           setFormData({...formData, tools: newTools});
+                        }}
+                        className="rounded border-white/20 bg-black/40 text-primary"
+                     />
+                     <span className="text-xs">{tool.name}</span>
+                  </label>
+               ))}
+            </div>
+          </div>
+
           <div className="flex gap-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input

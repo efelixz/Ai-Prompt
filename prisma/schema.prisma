@@ -22,6 +22,7 @@ model User {
   copyHistory   CopyHistory[]
   ratings       PromptRating[]
   comments      Comment[]
+  auditLogs     AuditLog[]
 }
 
 model AITool {
@@ -208,4 +209,16 @@ model Comment {
   prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String
+  entity      String
+  entityId    String?
+  details     String?
+  ipAddress   String?
+  createdAt   DateTime @default(now())
 }

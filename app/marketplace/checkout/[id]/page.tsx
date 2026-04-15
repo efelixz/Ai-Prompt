@@ -2,8 +2,10 @@ import { Navbar } from "@/components/navbar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ShieldCheck, CreditCard, Lock, ChevronRight, Check } from "lucide-react";
+import { ArrowLeft, ShieldCheck, CreditCard, Lock, ChevronRight, Check, Loader2 } from "lucide-react";
 import Link from "next/link";
+import { purchasePack } from "@/app/actions";
+import { CheckoutButton } from "@/components/marketplace/checkout-button";
 
 export default async function CheckoutPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -91,9 +93,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ id: s
                         </div>
                      </div>
 
-                     <Button className="w-full bg-primary text-white font-black h-12 gap-2 shadow-lg shadow-primary/20">
-                        Confirmar Pagamento <ChevronRight className="w-4 h-4" />
-                     </Button>
+                     <CheckoutButton packId={id} />
                   </CardContent>
                   <CardFooter className="bg-black/20 p-4">
                      <p className="text-[10px] text-center text-muted-foreground leading-relaxed">

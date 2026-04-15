@@ -4,6 +4,22 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { trackEvent } from '@/lib/analytics';
 
+async function logAudit(action: string, entity: string, entityId?: string, details?: string) {
+   try {
+      await prisma.auditLog.create({
+         data: {
+            userId: TEST_USER_ID,
+            action,
+            entity,
+            entityId,
+            details
+         }
+      });
+   } catch (error) {
+      console.error('Audit Log failed:', error);
+   }
+}
+
 /**
  * Nota: Em um app real, o userId seria extraído da sessão (ex: via Clerk ou NextAuth).
  * Para este protótipo, usaremos um ID de usuário fixo de teste.
@@ -12,6 +28,7 @@ const TEST_USER_ID = 'user_test_123';
 
 export async function toggleFavorite(promptId: string) {
   try {
+    await logAudit('toggle_favorite', 'prompt', promptId);
     await trackEvent('prompt_favorited_toggled', { promptId, userId: TEST_USER_ID });
     const existing = await prisma.favorite.findUnique({
       where: {
@@ -127,6 +144,7 @@ export async function createPrompt(data: any) {
     }
 
     revalidatePath('/explorar');
+    await logAudit('create_prompt', 'prompt', prompt.id, data.title);
     revalidatePath('/admin');
     return { success: true, prompt };
   } catch (error) {
@@ -196,6 +214,7 @@ export async function updatePrompt(id: string, data: any) {
 
     revalidatePath('/explorar');
     revalidatePath(`/prompt/${id}`);
+    await logAudit('update_prompt', 'prompt', id, data.title);
     revalidatePath('/admin');
     return { success: true };
   } catch (error) {
@@ -223,6 +242,46 @@ export async function logPromptCopy(promptId: string) {
     return { success: true };
   } catch (error) {
     console.error('Error logging copy:', error);
+    return { success: false };
+  }
+}
+
+export async function purchasePack(packId: string) {
+  try {
+    // Simulating pack contents
+    const contents: Record<string, string[]> = {
+       'p1': ['Arquitetura Etérea', 'Cinematic Drone Shot'],
+       'p2': ['Marketing Masterclass', 'Social Ads Hook'],
+       'p3': ['React Hook Gen', 'Unit Test Framework']
+    };
+
+    const packName = packId === 'p1' ? 'Elite Architecture Bundle' : packId === 'p2' ? 'Marketing Copy Masterclass' : 'Fullstack Developer Pack';
+
+    // Create a new collection for the user with the pack name
+    const collection = await prisma.collection.create({
+      data: {
+        userId: TEST_USER_ID,
+        name: `Pack: ${packName}`,
+        description: `Prompts adquiridos via Marketplace em ${new Date().toLocaleDateString('pt-BR')}.`,
+      }
+    });
+
+    // Simulate adding prompts to the collection
+    const samplePrompts = await prisma.prompt.findMany({ take: 3 });
+    if (samplePrompts.length > 0) {
+       await prisma.collectionItem.createMany({
+          data: samplePrompts.map(p => ({
+             collectionId: collection.id,
+             promptId: p.id
+          }))
+       });
+    }
+
+    await trackEvent('marketplace_purchase_completed', { userId: TEST_USER_ID, packId, collectionId: collection.id });
+
+    return { success: true, collectionId: collection.id };
+  } catch (error) {
+    console.error('Error purchasing pack:', error);
     return { success: false };
   }
 }

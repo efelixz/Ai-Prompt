@@ -6,10 +6,12 @@ async function main() {
   console.log('Seed: Iniciando...')
 
   // 1. Criar Usuário (Autor principal/Admin)
+  // Alinhado com TEST_USER_ID definido em app/actions.ts para o protótipo
   const admin = await prisma.user.upsert({
     where: { email: 'admin@obsidian.com' },
     update: {},
     create: {
+      id: 'user_test_123',
       email: 'admin@obsidian.com',
       name: 'Erik Luminary',
       role: 'admin',
