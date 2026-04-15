@@ -99,9 +99,11 @@ export default function MarketplacePage() {
                           <span className="text-xs text-muted-foreground block uppercase font-bold tracking-widest">A partir de</span>
                           <span className="text-2xl font-black text-white">{pack.price}</span>
                        </div>
-                       <Button className="bg-primary text-white font-bold gap-2 px-6">
-                          Adquirir Pack <ArrowRight className="w-4 h-4" />
-                       </Button>
+                       <Link href={`/marketplace/checkout/${pack.id}`}>
+                          <Button className="bg-primary text-white font-bold gap-2 px-6">
+                             Adquirir Pack <ArrowRight className="w-4 h-4" />
+                          </Button>
+                       </Link>
                     </CardFooter>
                  </Card>
               ))}

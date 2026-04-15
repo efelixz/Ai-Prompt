@@ -83,20 +83,21 @@ export default async function AdminDashboardPage() {
 
         <nav className="space-y-2 flex-1">
           {[
-            { label: "Dashboard", icon: LayoutDashboard, active: true },
-            { label: "Gestão de Prompts", icon: Database, active: false },
-            { label: "Usuários", icon: Users, active: false },
-            { label: "Analytics", icon: BarChart3, active: false },
-            { label: "Segurança", icon: Shield, active: false },
+            { label: "Dashboard", icon: LayoutDashboard, active: true, href: "/admin" },
+            { label: "Gestão de Prompts", icon: Database, active: false, href: "/admin" },
+            { label: "Usuários", icon: Users, active: false, href: "/admin/usuarios" },
+            { label: "Analytics", icon: BarChart3, active: false, href: "/admin" },
+            { label: "Segurança", icon: Shield, active: false, href: "/admin" },
           ].map((item) => (
-            <Button
-              key={item.label}
-              variant={item.active ? "secondary" : "ghost"}
-              className={`w-full justify-start gap-3 h-11 ${item.active ? "bg-white/10" : "text-muted-foreground hover:text-white"}`}
-            >
-              <item.icon className="w-4 h-4" />
-              {item.label}
-            </Button>
+            <Link key={item.label} href={item.href}>
+              <Button
+                variant={item.active ? "secondary" : "ghost"}
+                className={`w-full justify-start gap-3 h-11 ${item.active ? "bg-white/10" : "text-muted-foreground hover:text-white"}`}
+              >
+                <item.icon className="w-4 h-4" />
+                {item.label}
+              </Button>
+            </Link>
           ))}
         </nav>
 

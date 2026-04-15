@@ -116,6 +116,16 @@ export async function createPrompt(data: any) {
       });
     }
 
+    if (data.assetUrl) {
+       await prisma.promptAsset.create({
+          data: {
+             promptId: prompt.id,
+             assetType: 'image',
+             assetUrl: data.assetUrl,
+          }
+       });
+    }
+
     revalidatePath('/explorar');
     revalidatePath('/admin');
     return { success: true, prompt };
@@ -127,6 +137,23 @@ export async function createPrompt(data: any) {
 
 export async function updatePrompt(id: string, data: any) {
   try {
+    const current = await prisma.prompt.findUnique({
+      where: { id },
+      include: { versions: { orderBy: { version: 'desc' }, take: 1 } }
+    });
+
+    const nextVersionNum = current?.versions[0] ? current.versions[0].version + 1 : 1;
+
+    // Create version entry
+    await prisma.promptVersion.create({
+      data: {
+        promptId: id,
+        version: nextVersionNum,
+        promptText: data.promptText,
+        changes: data.versionNote || 'Atualização de conteúdo',
+      }
+    });
+
     await prisma.prompt.update({
       where: { id },
       data: {
@@ -154,6 +181,17 @@ export async function updatePrompt(id: string, data: any) {
           toolId,
         })),
       });
+    }
+
+    if (data.assetUrl) {
+       await prisma.promptAsset.deleteMany({ where: { promptId: id } });
+       await prisma.promptAsset.create({
+          data: {
+             promptId: id,
+             assetType: 'image',
+             assetUrl: data.assetUrl,
+          }
+       });
     }
 
     revalidatePath('/explorar');
@@ -185,6 +223,59 @@ export async function logPromptCopy(promptId: string) {
     return { success: true };
   } catch (error) {
     console.error('Error logging copy:', error);
+    return { success: false };
+  }
+}
+
+export async function updateProfile(data: {
+  name: string;
+  email: string;
+}) {
+  try {
+    await prisma.user.update({
+      where: { id: TEST_USER_ID },
+      data: {
+        name: data.name,
+        email: data.email
+      }
+    });
+
+    revalidatePath('/configuracoes');
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    return { success: false };
+  }
+}
+
+export async function addComment(promptId: string, content: string) {
+  try {
+    const comment = await prisma.comment.create({
+      data: {
+        content,
+        userId: TEST_USER_ID,
+        promptId,
+      },
+    });
+
+    revalidatePath(`/prompt/${promptId}`);
+    return { success: true, comment };
+  } catch (error) {
+    console.error('Error adding comment:', error);
+    return { success: false, error: 'Erro ao adicionar comentário' };
+  }
+}
+
+export async function deleteComment(commentId: string) {
+  try {
+    await prisma.comment.delete({
+      where: { id: commentId },
+    });
+
+    revalidatePath(`/explorar`); // Just in case, usually we'd need to revalidate the specific prompt page
+    return { success: true };
+  } catch (error) {
+    console.error('Error deleting comment:', error);
     return { success: false };
   }
 }

@@ -56,7 +56,7 @@ export function Navbar() {
               JD
             </div>
             <div className="absolute right-0 top-full mt-2 w-48 bg-[#0A0A0A] border border-white/10 rounded-lg shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all p-1 z-50">
-               <Link href="/favoritos" className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-white hover:bg-white/5 rounded-md">
+               <Link href="/configuracoes" className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-white hover:bg-white/5 rounded-md">
                   <User className="w-3.5 h-3.5" /> Meu Perfil
                </Link>
                <Link href="/onboarding" className="flex items-center gap-2 px-3 py-2 text-xs text-muted-foreground hover:text-white hover:bg-white/5 rounded-md">

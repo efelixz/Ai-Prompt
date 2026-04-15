@@ -79,14 +79,22 @@ export async function getTrendingPrompts() {
         },
         author: true,
       },
-      orderBy: [
-        { copyCount: 'desc' },
-        { viewCount: 'desc' }
-      ],
-      take: 6
+      take: 20
     });
 
-    return prompts.map(mapPrompt);
+    // Ranking formula: score = (views * 0.2) + (copies * 0.5) + (favorites * 0.7) + (rating * 1.2)
+    const promptsWithScore = prompts.map(p => {
+       const score =
+         (p.viewCount * 0.2) +
+         (p.copyCount * 0.5) +
+         (p.favoriteCount * 0.7) +
+         (Number(p.ratingAvg) * 1.2);
+       return { ...mapPrompt(p), rankingScore: score };
+    });
+
+    return promptsWithScore
+      .sort((a, b) => b.rankingScore - a.rankingScore)
+      .slice(0, 6);
   } catch (error) {
     console.error("Error fetching trending prompts", error);
     return [];
@@ -166,6 +174,12 @@ export async function getCollectionDetail(collectionId: string) {
 
 export async function getPromptBySlug(slug: string) {
   try {
+    // Increment view count
+    await prisma.prompt.update({
+       where: { slug },
+       data: { viewCount: { increment: 1 } }
+    }).catch(() => {});
+
     const prompt = await prisma.prompt.findUnique({
       where: { slug },
     include: {
@@ -183,6 +197,10 @@ export async function getPromptBySlug(slug: string) {
       author: true,
       examples: true,
       assets: true,
+        comments: {
+           include: { user: true },
+           orderBy: { createdAt: 'desc' }
+        }
       }
     });
 
@@ -368,6 +386,13 @@ function mapPrompt(p: any) {
     inputExample: p.examples?.[0]?.inputExample,
     outputExample: p.examples?.[0]?.outputExample,
     viewCount: p.viewCount,
+    assets: p.assets?.map((a: any) => ({ url: a.assetUrl, type: a.assetType })) || [],
+    comments: p.comments?.map((c: any) => ({
+       id: c.id,
+       content: c.content,
+       user: c.user?.name || 'Anônimo',
+       createdAt: c.createdAt
+    })) || [],
     tips: [] // Pode ser expandido se adicionarmos ao schema
   };
 }

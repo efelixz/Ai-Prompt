@@ -11,6 +11,7 @@ import { FavoriteButton } from "@/components/favorite-button";
 import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
 import { Rating } from "@/components/rating";
+import { CommentSection } from "@/components/comment-section";
 import { Navbar } from "@/components/navbar";
 import { Metadata } from 'next';
 import { Lock, Crown } from "lucide-react";
@@ -292,6 +293,15 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                  </div>
               </section>
 
+              {/* Comments Section */}
+              <section className="pt-12 border-t border-white/5">
+                 <CommentSection
+                   promptId={prompt.id}
+                   comments={prompt.comments || []}
+                   currentUserId={TEST_USER_ID}
+                 />
+              </section>
+
             </div>
 
             {/* Right Column: Visual Preview, Related, CTA */}
@@ -304,25 +314,32 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                     <h3 className="text-xl font-bold">Preview Visual</h3>
                  </div>
                  <div className="aspect-square bg-white/5 border border-white/10 rounded-2xl relative overflow-hidden flex items-center justify-center group">
+                    {prompt.assets?.[0]?.url ? (
+                       <img
+                         src={prompt.assets[0].url}
+                         alt={prompt.title}
+                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                       />
+                    ) : (
+                       <div className="text-center p-8">
+                          {prompt.category === 'Arquitetura' && (
+                             <div className="w-32 h-32 border-2 border-primary/20 rounded-full animate-pulse flex items-center justify-center">
+                                <div className="w-20 h-20 border-2 border-primary/40 rounded-full flex items-center justify-center">
+                                   <div className="w-10 h-10 bg-primary/20 rounded-full" />
+                                </div>
+                             </div>
+                          )}
+                          {prompt.category === 'Programação' && (
+                             <CodeIcon className="w-24 h-24 text-primary/10" />
+                          )}
+                          {!['Arquitetura', 'Programação'].includes(prompt.category) && (
+                             <Layout className="w-24 h-24 text-primary/10" />
+                          )}
+                          <p className="mt-6 text-sm text-muted-foreground uppercase font-bold tracking-tighter opacity-50">Visual Preview Asset</p>
+                       </div>
+                    )}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
                        <p className="text-xs text-white/80 italic">Representação visual do resultado deste prompt em alta resolução.</p>
-                    </div>
-                    {/* Placeholder content based on category */}
-                    <div className="text-center p-8">
-                       {prompt.category === 'Arquitetura' && (
-                          <div className="w-32 h-32 border-2 border-primary/20 rounded-full animate-pulse flex items-center justify-center">
-                             <div className="w-20 h-20 border-2 border-primary/40 rounded-full flex items-center justify-center">
-                                <div className="w-10 h-10 bg-primary/20 rounded-full" />
-                             </div>
-                          </div>
-                       )}
-                       {prompt.category === 'Programação' && (
-                          <CodeIcon className="w-24 h-24 text-primary/10" />
-                       )}
-                       {!['Arquitetura', 'Programação'].includes(prompt.category) && (
-                          <Layout className="w-24 h-24 text-primary/10" />
-                       )}
-                       <p className="mt-6 text-sm text-muted-foreground uppercase font-bold tracking-tighter opacity-50">Visual Preview Asset</p>
                     </div>
                  </div>
                  <p className="text-[10px] text-center text-muted-foreground uppercase font-medium tracking-widest">

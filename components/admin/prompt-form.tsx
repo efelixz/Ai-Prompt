@@ -33,6 +33,7 @@ export function PromptForm({
     isFeatured: initialData?.isFeatured || false,
     isPremium: initialData?.isPremium || false,
     tools: initialData?.aiToolsIds || initialData?.aiTools?.map((t: any) => t.toolId) || [],
+    assetUrl: initialData?.assets?.[0]?.assetUrl || '',
   });
 
   async function handleSubmit(e: React.FormEvent) {
@@ -148,6 +149,16 @@ export function PromptForm({
               />
               <span className="text-sm">Premium</span>
             </label>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">URL do Preview Visual</label>
+            <Input
+              value={formData.assetUrl}
+              onChange={e => setFormData({...formData, assetUrl: e.target.value})}
+              placeholder="https://exemplo.com/imagem.png"
+              className="bg-black/40 border-white/10"
+            />
           </div>
 
           <div className="flex gap-4 pt-4">
