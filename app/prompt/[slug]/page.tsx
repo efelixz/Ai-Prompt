@@ -12,6 +12,7 @@ import { CollectionSelect } from "@/components/collection-select";
 import { CopyButton } from "@/components/copy-button";
 import { Rating } from "@/components/rating";
 import { CommentSection } from "@/components/comment-section";
+import { PrivateNotes } from "@/components/private-notes";
 import { Navbar } from "@/components/navbar";
 import { Metadata } from 'next';
 import { Lock, Crown } from "lucide-react";
@@ -169,8 +170,12 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                   <Tabs defaultValue="main" className={`w-full ${prompt.isPremium && !IS_PRO_USER ? 'blur-md pointer-events-none select-none' : ''}`}>
                     <TabsList className="bg-white/5 border border-white/10 p-1 mb-6">
                       <TabsTrigger value="main" className="data-[state=active]:bg-primary data-[state=active]:text-white">Principal</TabsTrigger>
-                      <TabsTrigger value="short" className="data-[state=active]:bg-primary data-[state=active]:text-white">Curto</TabsTrigger>
-                      <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-white">Avançado</TabsTrigger>
+                      {prompt.promptTextShort && (
+                        <TabsTrigger value="short" className="data-[state=active]:bg-primary data-[state=active]:text-white">Curto</TabsTrigger>
+                      )}
+                      {prompt.promptTextAdvanced && (
+                        <TabsTrigger value="advanced" className="data-[state=active]:bg-primary data-[state=active]:text-white">Avançado</TabsTrigger>
+                      )}
                     </TabsList>
 
                     <TabsContent value="main" className="relative group">
@@ -188,35 +193,39 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                       </div>
                     </TabsContent>
 
-                    <TabsContent value="short" className="relative group">
-                      <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
-                        <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Condensed Version</div>
-                        {(!prompt.isPremium || IS_PRO_USER) && (
-                          <CopyButton
-                            promptId={prompt.id}
-                            textToCopy={prompt.promptTextShort || prompt.promptText}
-                            variant="default"
-                            className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
-                          />
-                        )}
-                        {prompt.isPremium && !IS_PRO_USER ? '################################################################' : (prompt.promptTextShort || prompt.promptText)}
-                      </div>
-                    </TabsContent>
+                    {prompt.promptTextShort && (
+                      <TabsContent value="short" className="relative group">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
+                          <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Condensed Version</div>
+                          {(!prompt.isPremium || IS_PRO_USER) && (
+                            <CopyButton
+                              promptId={prompt.id}
+                              textToCopy={prompt.promptTextShort}
+                              variant="default"
+                              className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                            />
+                          )}
+                          {prompt.isPremium && !IS_PRO_USER ? '################################################################' : prompt.promptTextShort}
+                        </div>
+                      </TabsContent>
+                    )}
 
-                    <TabsContent value="advanced" className="relative group">
-                      <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
-                        <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Power User Mode</div>
-                        {(!prompt.isPremium || IS_PRO_USER) && (
-                          <CopyButton
-                            promptId={prompt.id}
-                            textToCopy={prompt.promptTextAdvanced || prompt.promptText}
-                            variant="default"
-                            className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
-                          />
-                        )}
-                        {prompt.isPremium && !IS_PRO_USER ? '################################################################################################################################################################' : (prompt.promptTextAdvanced || prompt.promptText)}
-                      </div>
-                    </TabsContent>
+                    {prompt.promptTextAdvanced && (
+                      <TabsContent value="advanced" className="relative group">
+                        <div className="bg-white/5 border border-white/10 rounded-xl p-8 pt-10 font-mono text-sm leading-relaxed text-foreground min-h-[200px] selection:bg-primary/30">
+                          <div className="absolute top-4 left-4 text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Power User Mode</div>
+                          {(!prompt.isPremium || IS_PRO_USER) && (
+                            <CopyButton
+                              promptId={prompt.id}
+                              textToCopy={prompt.promptTextAdvanced}
+                              variant="default"
+                              className="absolute top-4 right-4 bg-primary text-white hover:bg-primary/90"
+                            />
+                          )}
+                          {prompt.isPremium && !IS_PRO_USER ? '################################################################################################################################################################' : prompt.promptTextAdvanced}
+                        </div>
+                      </TabsContent>
+                    )}
                   </Tabs>
 
                   {prompt.isPremium && !IS_PRO_USER && (
@@ -345,6 +354,11 @@ export default async function PromptDetailPage({ params }: { params: Promise<{ s
                  <p className="text-[10px] text-center text-muted-foreground uppercase font-medium tracking-widest">
                    Imagens geradas variam conforme a versão da IA
                  </p>
+              </section>
+
+              {/* User Private Notes */}
+              <section>
+                 <PrivateNotes promptId={prompt.id} initialContent={prompt.userNote || ''} />
               </section>
 
               {/* Related Prompts */}

@@ -23,6 +23,7 @@ model User {
   ratings       PromptRating[]
   comments      Comment[]
   auditLogs     AuditLog[]
+  notes         UserNote[]
 }
 
 model AITool {
@@ -96,6 +97,7 @@ model Prompt {
   ratings           PromptRating[]
   versions          PromptVersion[]
   comments          Comment[]
+  notes             UserNote[]
 }
 
 model PromptExample {
@@ -221,4 +223,17 @@ model AuditLog {
   details     String?
   ipAddress   String?
   createdAt   DateTime @default(now())
+}
+
+model UserNote {
+  id        String   @id @default(uuid())
+  userId    String
+  promptId  String
+  content   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  prompt    Prompt   @relation(fields: [promptId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, promptId])
 }

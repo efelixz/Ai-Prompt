@@ -246,6 +246,31 @@ export async function logPromptCopy(promptId: string) {
   }
 }
 
+export async function saveUserNote(promptId: string, content: string) {
+  try {
+    await prisma.userNote.upsert({
+      where: {
+        userId_promptId: {
+          userId: TEST_USER_ID,
+          promptId,
+        },
+      },
+      update: { content },
+      create: {
+        userId: TEST_USER_ID,
+        promptId,
+        content,
+      },
+    });
+
+    revalidatePath(`/prompt/${promptId}`);
+    return { success: true };
+  } catch (error) {
+    console.error('Error saving user note:', error);
+    return { success: false, error: 'Erro ao salvar nota' };
+  }
+}
+
 export async function purchasePack(packId: string) {
   try {
     // Simulating pack contents

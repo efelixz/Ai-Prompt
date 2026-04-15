@@ -32,23 +32,28 @@ export default async function LandingPage() {
             Desbloqueie a próxima geração de engenharia criativa de IA. Prompts de alta fidelidade, feitos à mão para profissionais que exigem perfeição.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16">
-            <Button size="lg" className="px-8 bg-primary text-white hover:bg-primary/90 h-14 text-base font-semibold w-full sm:w-auto">
-              Começar a Criar
-            </Button>
-            <Button size="lg" variant="outline" className="px-8 border-white/10 bg-white/5 hover:bg-white/10 h-14 text-base font-semibold w-full sm:w-auto">
-              Ver Showcase
-            </Button>
+            <Link href="/studio" className="w-full sm:w-auto">
+              <Button size="lg" className="px-8 bg-primary text-white hover:bg-primary/90 h-14 text-base font-semibold w-full">
+                Começar a Criar
+              </Button>
+            </Link>
+            <Link href="/explorar" className="w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="px-8 border-white/10 bg-white/5 hover:bg-white/10 h-14 text-base font-semibold w-full">
+                Ver Showcase
+              </Button>
+            </Link>
           </div>
 
-          <div className="max-w-xl mx-auto relative group">
+          <form action="/explorar" method="GET" className="max-w-xl mx-auto relative group">
             <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
               <Search className="w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
             </div>
             <Input
+              name="q"
               placeholder="Buscar por 'Arquitetura Cinemática'..."
               className="h-14 pl-12 bg-white/5 border-white/10 focus-visible:ring-primary/50 text-base rounded-xl"
             />
-          </div>
+          </form>
         </section>
 
         {/* Browse by Intent */}

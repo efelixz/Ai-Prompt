@@ -82,13 +82,21 @@ export async function getTrendingPrompts() {
       take: 20
     });
 
-    // Ranking formula: score = (views * 0.2) + (copies * 0.5) + (favorites * 0.7) + (rating * 1.2)
+    // Ranking formula: score = ((views * 0.2) + (copies * 0.5) + (favorites * 0.7) + (rating * 1.2)) * freshnessBoost
+    const now = new Date();
     const promptsWithScore = prompts.map(p => {
-       const score =
+       const rawScore =
          (p.viewCount * 0.2) +
          (p.copyCount * 0.5) +
          (p.favoriteCount * 0.7) +
          (Number(p.ratingAvg) * 1.2);
+
+       // Freshness Boost: Decay over 30 days
+       const daysOld = Math.floor((now.getTime() - p.createdAt.getTime()) / (1000 * 60 * 60 * 24));
+       const freshnessBoost = Math.max(0.5, 1.5 - (daysOld * 0.033)); // De 1.5x (novo) até 0.5x (antigo)
+
+       const score = rawScore * freshnessBoost;
+
        return { ...mapPrompt(p), rankingScore: score };
     });
 
@@ -200,6 +208,9 @@ export async function getPromptBySlug(slug: string) {
         comments: {
            include: { user: true },
            orderBy: { createdAt: 'desc' }
+        },
+        notes: {
+           where: { userId: 'user_test_123' }
         }
       }
     });
@@ -393,6 +404,7 @@ function mapPrompt(p: any) {
        user: c.user?.name || 'Anônimo',
        createdAt: c.createdAt
     })) || [],
+    userNote: p.notes?.[0]?.content || '',
     tips: [] // Pode ser expandido se adicionarmos ao schema
   };
 }
